@@ -3,7 +3,7 @@ import string
 
 def get_quotes_data():
     '''returns a DataFrame with 500k quotes, their authors and categories'''
-    quotes = pd.read_csv('/home/alibor/code/LAnnamaria/quotes_for_posts_783/raw_data/quotes.csv')
+    quotes = pd.read_csv('/home/alibor/code/LAnnamaria/quotes_for_posts_783/raw_data/quotes - reduced.csv')
     return quotes
 
 def remove_punctuations(text):
@@ -29,4 +29,5 @@ def clean_data(quotes, test=False):
 
 if __name__ == '__main__':
     quotes = get_quotes_data()
-    print('Quotes dataframe has been loaded')
+    quotes = clean_data(quotes)
+    print(quotes.info())
