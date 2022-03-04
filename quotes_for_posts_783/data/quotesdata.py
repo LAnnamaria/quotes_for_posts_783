@@ -1,9 +1,11 @@
 import pandas as pd
 import string
+import os
 
 def get_quotes_data():
     '''returns a DataFrame with 500k quotes, their authors and categories'''
-    quotes = pd.read_csv('/../../../LAnnamaria/quotes_for_posts_783/raw_data/quotes - reduced.csv')
+    path = os. getcwd()
+    quotes = pd.read_csv(f"{path}/raw_data/quotes - reduced.csv")
     return quotes
 
 def remove_punctuations(text):
