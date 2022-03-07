@@ -76,6 +76,25 @@ def display_data():
 
     return img_0, img_1, img_2, img_3, img_4
 
+def convert_df(df_name,image_list):
+    df_comments = pd.read_csv('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/images_comments.csv')
+    df_name = {
+        'image_name' : [],
+        'comments' : []
+    }
+
+    for name in image_list:
+        for kn in range(5):
+            df_name['image_name'].append(name)
+            df_name['comments'].append(df_comments.loc[lambda df_comments: df_comments['image_name'] == name].reset_index()['comment'][kn])
+
+    df_name['image_name'] = np.array(df_name['image_name'])
+    df_name['comments'] = np.array(df_name['comments'])
+    df_name = pd.DataFrame(df_name)
+    print('convertet')
+    #df_name.to_csv(f"/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/{df_name}.csv",index=False)
+    return df_name
+
 if __name__ == "__main__":
     store_data = {
     'flattenPhoto' : [],
@@ -84,4 +103,5 @@ if __name__ == "__main__":
     'image_name' : []
     }
     culster_model()
-    display_data()
+    img_0, img_1, img_2, img_3, img_4 = display_data()
+    convert_df('df_images_0', img_0)
