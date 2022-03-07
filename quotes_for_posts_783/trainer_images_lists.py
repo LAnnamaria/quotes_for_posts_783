@@ -6,6 +6,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.applications import ResNet50 , resnet50
 from sklearn.cluster import AgglomerativeClustering
 import joblib
+import os
 
 '''def store_data():
     data = {
@@ -37,7 +38,9 @@ def LoadDataAndDoEssentials(path, h, w):
     store_data['flattenPhoto'].append(extractedFeatures.flatten())
 
 def ReadAndStoreMyImages(path):
-    df = pd.read_csv('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/images_name.csv')
+    pathi = os. getcwd()
+    df = pd.read_csv(f"{pathi}/raw_data/images_name.csv")
+    #df = pd.read_csv('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/images_name.csv')
     df_im = df.tail(10)
     images = list(df_im['image_name'])
     for i in images:
@@ -46,7 +49,8 @@ def ReadAndStoreMyImages(path):
         LoadDataAndDoEssentials(imagePath, 224, 224)
 
 def culster_model():
-    ReadAndStoreMyImages('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/10_images')
+    path = os. getcwd()
+    ReadAndStoreMyImages(f"{path}/raw_data/10_images")
     Training_Feature_vector = np.array(store_data['flattenPhoto'], dtype = 'float64')
     kmeans = AgglomerativeClustering(n_clusters = 5)
     k = kmeans.fit_predict(Training_Feature_vector)
