@@ -8,14 +8,14 @@ from sklearn.cluster import AgglomerativeClustering
 import joblib
 import os
 
-'''def store_data():
+def store_data():
     data = {
     'flattenPhoto' : [],
     'photoclass' : [],
     'photoclasskmeans' : [],
     'image_name' : []
     }
-    return data'''
+    return data
 def classefier_model():
     MyModel = Sequential()
     MyModel.add(ResNet50(
@@ -40,7 +40,6 @@ def LoadDataAndDoEssentials(path, h, w):
 def ReadAndStoreMyImages(path):
     pathi = os. getcwd()
     df = pd.read_csv(f"{pathi}/raw_data/images_name.csv")
-    #df = pd.read_csv('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/images_name.csv')
     df_im = df.tail(10)
     images = list(df_im['image_name'])
     for i in images:
@@ -49,16 +48,16 @@ def ReadAndStoreMyImages(path):
         LoadDataAndDoEssentials(imagePath, 224, 224)
 
 def culster_model():
-    path = os. getcwd()
+    path = os. getcwd() #here should be the path of the 32000 images
     ReadAndStoreMyImages(f"{path}/raw_data/10_images")
     Training_Feature_vector = np.array(store_data['flattenPhoto'], dtype = 'float64')
     kmeans = AgglomerativeClustering(n_clusters = 5)
     k = kmeans.fit_predict(Training_Feature_vector)
     store_data['photoclasskmeans'] = k
-
 def display_data():
     data = pd.DataFrame(store_data)
     data = data.sort_values('photoclass').reset_index()
+    print(data.shape)
     g_im = data.groupby('photoclasskmeans')
     g_im = pd.DataFrame(g_im)
     for i in range(5):
@@ -72,12 +71,6 @@ def display_data():
             img_3 = list(g_im[1][i]['image_name'])
         if i == 4:
             img_4 = list(g_im[1][i]['image_name'])
-    print(img_0)
-    print(img_1)
-    print(img_2)
-    print(img_3)
-    print(img_4)
-
     return img_0, img_1, img_2, img_3, img_4
 
 def convert_df(df_name,image_list):
@@ -97,16 +90,86 @@ def convert_df(df_name,image_list):
     df_name['comments'] = np.array(df_name['comments'])
     df_name = pd.DataFrame(df_name)
     print('convertet')
-    #df_name.to_csv(f"/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/{df_name}.csv",index=False)
-    return df_name
+    #path = os. getcwd()
+    #df_name.to_csv(f"{path}/raw_data/{df_name}.csv",index=False)
+
+def get_clust():
+    data = pd.DataFrame(store_data)
+    data = data.sort_values('photoclass').reset_index()
+    for i in range(5):
+        if i == 0:
+            data_0 = data.loc[data['photoclasskmeans'] == i].groupby('photoclass').count()
+            data_0 = data_0.reset_index()
+            data_0['photoclasskmeans'] = data_0['photoclasskmeans'].apply(lambda x : i)
+        elif i == 1:
+            data_1 = data.loc[data['photoclasskmeans'] == i].groupby('photoclass').count()
+            data_1 = data_1.reset_index()
+            data_1['photoclasskmeans'] = data_1['photoclasskmeans'].apply(lambda x : i)
+        elif i == 2:
+            data_2 = data.loc[data['photoclasskmeans'] == i].groupby('photoclass').count()
+            data_2 = data_2.reset_index()
+            data_2['photoclasskmeans'] = data_2['photoclasskmeans'].apply(lambda x : i)
+        elif i == 3:
+            data_3 = data.loc[data['photoclasskmeans'] == i].groupby('photoclass').count()
+            data_3 = data_3.reset_index()
+            data_3['photoclasskmeans'] = data_3['photoclasskmeans'].apply(lambda x : i)
+        elif i == 4:
+            data_4 = data.loc[data['photoclasskmeans'] == i].groupby('photoclass').count()
+            data_4 = data_4.reset_index()
+            data_4['photoclasskmeans'] = data_4['photoclasskmeans'].apply(lambda x : i)
+    photoclass_df = data.groupby('photoclass').count().reset_index()
+    print(photoclass_df.shape)
+    classes_df = {
+    'classnumber' : [],
+    'clusternumber': []
+                }
+    for c in list(photoclass_df['photoclass']):
+        if c in list(data_0['photoclass']):
+            classes_df['classnumber'].append(c)
+            classes_df['clusternumber'].append(0)
+        if c in list(data_1['photoclass']):
+            classes_df['classnumber'].append(c)
+            classes_df['clusternumber'].append(1)
+        if c in list(data_2['photoclass']):
+            classes_df['classnumber'].append(c)
+            classes_df['clusternumber'].append(2)
+        if c in list(data_3['photoclass']):
+            classes_df['classnumber'].append(c)
+            classes_df['clusternumber'].append(3)
+        if c in list(data_4['photoclass']):
+            classes_df['classnumber'].append(c)
+            classes_df['clusternumber'].append(4)
+    classes_df['classnumber']=np.array(classes_df['classnumber'])
+    classes_df['clusternumber']=np.array(classes_df['clusternumber'])
+    classes_df = pd.DataFrame(classes_df)
+    l = classes_df.groupby('classnumber')
+    l =  pd.DataFrame(l)
+    p = []
+    g_c = []
+    for a, b in l.itertuples(index=False):
+        p.append(b)
+    for i in range(len(p)):
+        g_c.append(list(p[i]['clusternumber']))
+    grouped_classes_df = {
+    'classnumber' : [],
+    'clusternumber': []
+                    }
+    grouped_classes_df['classnumber']=photoclass_df['photoclass']
+    g_c = np.array(g_c).reshape(len(g_c))
+    grouped_classes_df['clusternumber'] = g_c
+
+    grouped_classes_df = pd.DataFrame(grouped_classes_df)
+    print(grouped_classes_df)#you can comment this line
+    #path = os. getcwd()
+    #grouped_classes_df.to_csv(f"{path}/raw_data/grouped_classes_df.csv",index=False)
 
 if __name__ == "__main__":
-    store_data = {
-    'flattenPhoto' : [],
-    'photoclass' : [],
-    'photoclasskmeans' : [],
-    'image_name' : []
-    }
+    store_data = store_data()
     culster_model()
+    get_clust()
     img_0, img_1, img_2, img_3, img_4 = display_data()
     convert_df('df_images_0', img_0)
+    convert_df('df_images_1', img_1)
+    convert_df('df_images_2', img_2)
+    convert_df('df_images_3', img_3)
+    convert_df('df_images_4', img_4)
