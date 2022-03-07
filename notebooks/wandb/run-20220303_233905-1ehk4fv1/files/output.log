@@ -1,0 +1,6 @@
+(19069, 6)
+(6357, 6)
+(6357, 6)
+Downloading: "https://download.pytorch.org/models/resnet50-0676ba61.pth" to /home/mohanakrishnan/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
+Image Transformation:  torch.Size([32, 3, 256, 256])  -->  torch.Size([32, 512])
+Captions Transformation:  torch.Size([32, 100])  -->  torch.Size([3200, 28881])
