@@ -30,8 +30,8 @@ BUCKET_TRAINING_FOLDER = 'quotes_for_your_posts'
 REGION=europe-west1
 
 PYTHON_VERSION=3.7
-FRAMEWORK=scikit-learn
-RUNTIME_VERSION=1.15
+FRAMEWORK=TensorFlow
+RUNTIME_VERSION=2.6
 
 ##### Package params  - - - - - - - - - - - - - - - - - - -
 
@@ -40,7 +40,7 @@ FILENAME=dummy
 
 ##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
 
-JOB_NAME=quotes_for_your_posts_image_prediction
+JOB_NAME=autotab_$(shell date +'%Y%m%d_%H%M%S')
 
 run_locally:
 	@python -m ${PACKAGE_NAME}.${FILENAME}

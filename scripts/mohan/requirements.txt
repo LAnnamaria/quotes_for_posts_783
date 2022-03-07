@@ -20,7 +20,6 @@ s3fs
 gcsfs
 google-cloud-storage
 termcolor
-#git+https://github.com/Maluuba/nlg-eval.git@master
 torchvision
 TensorFlow
 Keras

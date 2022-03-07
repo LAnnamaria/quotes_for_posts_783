@@ -1,7 +1,5 @@
 import numpy as np
 from numpy import array
-import matplotlib.pyplot as plt
-%matplotlib inline
 
 import string
 import os
@@ -62,6 +60,14 @@ MODEL_VERSION = 'v1'
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+def classefier_model():
+    MyModel = Sequential()
+    MyModel.add(ResNet50(
+    include_top = False, weights='imagenet',    pooling='avg',
+    ))
+    MyModel.layers[0].trainable = False
+    joblib.dump(MyModel, 'model.joblib')
 
 token_path = "raw_data/Flickr8k_text/Flickr8k.token.txt"
 train_images_path = 'raw_data/Flickr8k_text/Flickr_8k.trainImages.txt'
@@ -195,7 +201,7 @@ def encode(image):
     fea_vec = model_new.predict(image) 
     fea_vec = np.reshape(fea_vec, fea_vec.shape[1])
     return fea_vec
-%%capture
+
 encoding_train = {}
 for img in train_img:
     encoding_train[img[len(images_path):]] = encode(img)
