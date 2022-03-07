@@ -81,7 +81,8 @@ def display_data():
     return img_0, img_1, img_2, img_3, img_4
 
 def convert_df(df_name,image_list):
-    df_comments = pd.read_csv('/home/morad/code/LAnnamaria/quotes_for_posts_783/raw_data/images_comments.csv')
+    path = os. getcwd()
+    df_comments = pd.read_csv(f'{path}/raw_data/images_comments.csv')
     df_name = {
         'image_name' : [],
         'comments' : []
