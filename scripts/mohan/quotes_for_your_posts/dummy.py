@@ -153,3 +153,167 @@ for sent in all_train_captions:
 vocab = [w for w in word_counts if word_counts[w] >= word_count_threshold]
 
 print('Vocabulary = %d' % (len(vocab)))
+
+ixtoword = {}
+wordtoix = {}
+ix = 1
+for w in vocab:
+    wordtoix[w] = ix
+    ixtoword[ix] = w
+    ix += 1
+
+vocab_size = len(ixtoword) + 1
+
+all_desc = list()
+for key in train_descriptions.keys():
+    [all_desc.append(d) for d in train_descriptions[key]]
+lines = all_desc
+max_length = max(len(d.split()) for d in lines)
+
+print('Description Length: %d' % max_length)
+
+embeddings_index = {} 
+f = open(os.path.join(glove_path), encoding="utf-8")
+for line in f:
+    values = line.split()
+    word = values[0]
+    coefs = np.asarray(values[1:], dtype='float32')
+    embeddings_index[word] = coefs
+
+model = InceptionV3(weights='imagenet')
+model_new = Model(model.input, model.layers[-2].output)
+
+def preprocess(image_path):
+    img = image.load_img(image_path, target_size=(299, 299))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = preprocess_input(x)
+    return x
+
+def encode(image):
+    image = preprocess(image) 
+    fea_vec = model_new.predict(image) 
+    fea_vec = np.reshape(fea_vec, fea_vec.shape[1])
+    return fea_vec
+%%capture
+encoding_train = {}
+for img in train_img:
+    encoding_train[img[len(images_path):]] = encode(img)
+train_features = encoding_train
+
+encoding_test = {}
+for img in test_img:
+    encoding_test[img[len(images_path):]] = encode(img)
+
+inputs1 = Input(shape=(2048,))
+fe1 = Dropout(0.5)(inputs1)
+fe2 = Dense(256, activation='relu')(fe1)
+
+inputs2 = Input(shape=(max_length,))
+se1 = Embedding(vocab_size, embedding_dim, mask_zero=True)(inputs2)
+se2 = Dropout(0.5)(se1)
+se3 = LSTM(256)(se2)
+
+decoder1 = add([fe2, se3])
+decoder2 = Dense(256, activation='relu')(decoder1)
+outputs = Dense(vocab_size, activation='softmax')(decoder2)
+
+model = Model(inputs=[inputs1, inputs2], outputs=outputs)
+model.summary()
+
+model.layers[2].set_weights([embedding_matrix])
+model.layers[2].trainable = False
+model.compile(loss='categorical_crossentropy', optimizer='adam')
+
+def data_generator(descriptions, photos, wordtoix, max_length, num_photos_per_batch):
+    X1, X2, y = list(), list(), list()
+    n=0
+    # loop for ever over images
+    while 1:
+        for key, desc_list in descriptions.items():
+            n+=1
+            # retrieve the photo feature
+            photo = photos[key+'.jpg']
+            for desc in desc_list:
+                # encode the sequence
+                seq = [wordtoix[word] for word in desc.split(' ') if word in wordtoix]
+                # split one sequence into multiple X, y pairs
+                for i in range(1, len(seq)):
+                    # split into input and output pair
+                    in_seq, out_seq = seq[:i], seq[i]
+                    # pad input sequence
+                    in_seq = pad_sequences([in_seq], maxlen=max_length)[0]
+                    # encode output sequence
+                    out_seq = to_categorical([out_seq], num_classes=vocab_size)[0]
+                    # store
+                    X1.append(photo)
+                    X2.append(in_seq)
+                    y.append(out_seq)
+
+            if n==num_photos_per_batch:
+                yield ([array(X1), array(X2)], array(y))
+                X1, X2, y = list(), list(), list()
+                n=0
+
+epochs = 30
+batch_size = 3
+steps = len(train_descriptions)//batch_size
+
+generator = data_generator(train_descriptions, train_features, wordtoix, max_length, batch_size)
+model.fit(generator, epochs=epochs, steps_per_epoch=steps, verbose=1)
+
+def greedySearch(photo):
+    in_text = 'startseq'
+    for i in range(max_length):
+        sequence = [wordtoix[w] for w in in_text.split() if w in wordtoix]
+        sequence = pad_sequences([sequence], maxlen=max_length)
+        yhat = model.predict([photo,sequence], verbose=0)
+        yhat = np.argmax(yhat)
+        word = ixtoword[yhat]
+        in_text += ' ' + word
+        if word == 'endseq':
+            break
+
+    final = in_text.split()
+    final = final[1:-1]
+    final = ' '.join(final)
+    return final
+
+
+def beam_search_predictions(image, beam_index = 3):
+    start = [wordtoix["startseq"]]
+    start_word = [[start, 0.0]]
+    while len(start_word[0][0]) < max_length:
+        temp = []
+        for s in start_word:
+            par_caps = sequence.pad_sequences([s[0]], maxlen=max_length, padding='post')
+            preds = model.predict([image,par_caps], verbose=0)
+            word_preds = np.argsort(preds[0])[-beam_index:]
+            # Getting the top <beam_index>(n) predictions and creating a 
+            # new list so as to put them via the model again
+            for w in word_preds:
+                next_cap, prob = s[0][:], s[1]
+                next_cap.append(w)
+                prob += preds[0][w]
+                temp.append([next_cap, prob])
+                    
+        start_word = temp
+        # Sorting according to the probabilities
+        start_word = sorted(start_word, reverse=False, key=lambda l: l[1])
+        # Getting the top words
+        start_word = start_word[-beam_index:]
+    
+    start_word = start_word[-1][0]
+    intermediate_caption = [ixtoword[i] for i in start_word]
+    final_caption = []
+    
+    for i in intermediate_caption:
+        if i != 'endseq':
+            final_caption.append(i)
+        else:
+            break
+
+    final_caption = ' '.join(final_caption[1:])
+    return final_caption
+
+

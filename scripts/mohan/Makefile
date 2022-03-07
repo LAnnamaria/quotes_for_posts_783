@@ -17,7 +17,7 @@ BUCKET_NAME=image_caption
 ##### Training  - - - - - - - - - - - - - - - - - - - - - -
 
 # will store the packages uploaded to GCP for the training
-BUCKET_TRAINING_FOLDER = 'model'
+BUCKET_TRAINING_FOLDER = 'quotes_for_your_posts'
 
 ##### Model - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -36,11 +36,11 @@ RUNTIME_VERSION=1.15
 ##### Package params  - - - - - - - - - - - - - - - - - - -
 
 PACKAGE_NAME=quotes_for_your_posts
-FILENAME=trainer
+FILENAME=dummy
 
 ##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
 
-JOB_NAME=quotes_for_your_posts
+JOB_NAME=quotes_for_your_posts_image_prediction
 
 run_locally:
 	@python -m ${PACKAGE_NAME}.${FILENAME}
