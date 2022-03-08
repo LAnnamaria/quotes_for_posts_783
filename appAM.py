@@ -154,6 +154,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
 
             image = Image.open(uploaded_file)
             st.image(image)
+<<<<<<< HEAD
             path = os.getcwd()
             with open((f"{path}/tempDir"),"wb") as f:
                 f.write(uploaded_file.getbuffer())
@@ -169,6 +170,21 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
                         st.write(count,ele)
+=======
+            if 'count' not in st.session_state:
+                st.session_state.count = 0
+            cal_b=st.sidebar.button('Show me the suitable quotes')
+            if cal_b:
+                st.session_state.load_topics = True
+                with st.spinner('Wait for it...'):
+                    time.sleep(3)
+                    st.success('Your Quotes are ready!')
+                    with st.container():
+                        for count,ele in enumerate(quotes_demo,1):
+                         st.write(count,ele)
+                    st.markdown("""---""")
+                    st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
+>>>>>>> 7d9a66b470795f73e3e837e557dcd0a77113c26a
 
 
 else:
@@ -181,7 +197,7 @@ else:
 # Making sure topics section is True + mode is upload
 if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
     st.sidebar.markdown("""---""")
-    st.sidebar.write("- If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
+    st.sidebar.write("- Give us your tags and submit!")
     with st.sidebar.form(key="topics", clear_on_submit=True):
         t1=st.text_input("Tag 1")
         t2=st.text_input("Tag 2")
