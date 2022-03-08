@@ -1,8 +1,71 @@
+### GCP configuration - - - - - - - - - - - - - - - - - - -
+
+# Instantiates a client
+#client = storage.Client()
+
+### GCP Project - - - - - - - - - - - - - - - - - - - - - -
+
+# not required here
+
+### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
+
+BUCKET_NAME=quotes_for_posts_783
+
+##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Retrieve an existing bucket
+#https://console.cloud.google.com/storage/browser/[BUCKET_NAME]/
+#bucket = client.get_bucket('BUCKET_NAME')
+# Then do other things...
+#blob = bucket.get_blob('remote/path/to/file.txt')
+
+##### Training  - - - - - - - - - - - - - - - - - - - - - -
+
+# will store the packages uploaded to GCP for the training
+BUCKET_TRAINING_FOLDER = 'quotes_for_your_posts'
+
+##### Model - - - - - - - - - - - - - - - - - - - - - - - -
+
+# not required here
+
+### GCP AI Platform - - - - - - - - - - - - - - - - - - - -
+
+##### Machine configuration - - - - - - - - - - - - - - - -
+
+REGION=europe-west1
+
+PYTHON_VERSION=3.7
+FRAMEWORK=scikit-learn
+RUNTIME_VERSION=2.6
+
+##### Package params  - - - - - - - - - - - - - - - - - - -
+
+PACKAGE_NAME=quotes_for_posts_783
+FILENAME=trainer_images_lists
+
+##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
+
+JOB_NAME=quotes_for_posts_783_$(shell date +'%Y%m%d_%H%M%S')
+
+
 # ----------------------------------
 #          INSTALL & TEST
 # ----------------------------------
 install_requirements:
 	@pip install -r requirements.txt
+
+run_locally:
+	@python -m ${PACKAGE_NAME}.${FILENAME}
+
+gcp_submit_training:
+	gcloud ai-platform jobs submit training ${JOB_NAME} \
+		--job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER} \
+		--package-path ${PACKAGE_NAME} \
+		--module-name ${PACKAGE_NAME}.${FILENAME} \
+		--python-version=${PYTHON_VERSION} \
+		--runtime-version=${RUNTIME_VERSION} \
+		--region ${REGION} \
+		--stream-logs
 
 check_code:
 	@flake8 scripts/* quotes_for_posts_783/*.py

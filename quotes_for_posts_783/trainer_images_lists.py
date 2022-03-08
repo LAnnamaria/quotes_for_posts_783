@@ -2,11 +2,71 @@ import pandas as pd
 import numpy as np
 import matplotlib.image as mpimg
 import cv2
+import glob
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.applications import ResNet50 , resnet50
 from sklearn.cluster import AgglomerativeClustering
 import joblib
-import os
+from google.cloud import storage
+#import os
+### GCP configuration - - - - - - - - - - - - - - - - - - -
+
+### GCP Project - - - - - - - - - - - - - - - - - - - - - -
+
+# not required here
+
+### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
+
+BUCKET_NAME = 'quotes_for_posts_783'
+
+##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
+
+# train data file location
+# /!\ here you need to decide if you are going to train using the provided and uploaded data/train_1k.csv sample file
+# or if you want to use the full dataset (you need need to upload it first of course)
+BUCKET_TRAIN_DATA_PATH = 'raw_data/image_dataset'
+BUCKET_TRAIN_DATA_PATH_1= 'raw_data/image_dataset/images_name.csv'
+BUCKET_TRAIN_DATA_PATH_2 ='raw_data/image_dataset/images_comments.csv'
+BUCKET_TRAIN_DATA_PATH_3 ='raw_data/image_dataset/image_dataset'
+##### Training  - - - - - - - - - - - - - - - - - - - - - -
+
+# not required here
+
+##### Model - - - - - - - - - - - - - - - - - - - - - - - -
+
+# model folder name (will contain the folders for all trained model versions)
+MODEL_NAME = 'image_classification'
+
+# model version folder name (where the trained model.joblib file will be stored)
+MODEL_VERSION = 'v1'
+
+### GCP AI Platform - - - - - - - - - - - - - - - - - - - -
+
+# not required here
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+STORAGE_LOCATION = 'quotes_for_posts_783/trainer_images_lists_model.joblib'
+
+def get_data():
+    """method to get the training data (or a portion of it) from google cloud bucket"""
+    df_im = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
+
+    df_comments = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_2}')
+    df_comments
+    return df_im, df_comments
+
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+
+    print(
+        "Downloaded storage object {} from bucket {} to local file {}.".format(
+            source_blob_name, bucket_name, destination_file_name
+        )
+    )
 
 def store_data():
     data = {
@@ -16,17 +76,26 @@ def store_data():
     'image_name' : []
     }
     return data
+def upload_model_to_gcp():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION)
+    blob.upload_from_filename('trainer_images_lists_model.joblib')
+
 def classefier_model():
     MyModel = Sequential()
     MyModel.add(ResNet50(
     include_top = False, weights='imagenet',    pooling='avg',
     ))
     MyModel.layers[0].trainable = False
-    joblib.dump(MyModel, 'model.joblib')
+    joblib.dump(MyModel, 'trainer_images_lists_model.joblib')
+    upload_model_to_gcp()
+    print(f"uploaded model.joblib to gcp cloud storage under \n => {STORAGE_LOCATION}")
 
-def LoadDataAndDoEssentials(path, h, w):
-    loaded_model = joblib.load('model.joblib')
-    img = mpimg.imread(path)
+
+def LoadDataAndDoEssentials(img_blob, h, w):
+    loaded_model = joblib.load('trainer_images_lists_model.joblib')
+    img = mpimg.imread(img_blob)
     img = cv2.resize(img, (h, w))
     ## Expanding image dims so this represents 1 sample
     img = np.expand_dims(img, 0)
@@ -37,23 +106,23 @@ def LoadDataAndDoEssentials(path, h, w):
     store_data['photoclass'].append(classes_x)
     store_data['flattenPhoto'].append(extractedFeatures.flatten())
 
-def ReadAndStoreMyImages(path):
-    pathi = os. getcwd()
-    df = pd.read_csv(f"{pathi}/raw_data/images_name.csv")
-    df_im = df.tail(10)
+def ReadAndStoreMyImages(df_im):
+    #pathi = os. getcwd()
     images = list(df_im['image_name'])
     for i in images:
-        imagePath = f"{path}/{i}.jpg"
+        imagePath = f'{BUCKET_TRAIN_DATA_PATH_3}/{i}.jpg'
+        img_blob = download_blob(BUCKET_NAME, imagePath, '../quotes_for_posts_783/data')
         store_data['image_name'].append(i)
-        LoadDataAndDoEssentials(imagePath, 224, 224)
+        img_temp_path = '../quotes_for_posts_783/data'
+        LoadDataAndDoEssentials(img_temp_path, 224, 224)
 
-def culster_model():
-    path = os. getcwd() #here should be the path of the 32000 images
-    ReadAndStoreMyImages(f"{path}/raw_data/10_images")
+def culster_model(df_im):
+    ReadAndStoreMyImages(df_im)
     Training_Feature_vector = np.array(store_data['flattenPhoto'], dtype = 'float64')
     kmeans = AgglomerativeClustering(n_clusters = 5)
     k = kmeans.fit_predict(Training_Feature_vector)
     store_data['photoclasskmeans'] = k
+
 def display_data():
     data = pd.DataFrame(store_data)
     data = data.sort_values('photoclass').reset_index()
@@ -73,9 +142,8 @@ def display_data():
             img_4 = list(g_im[1][i]['image_name'])
     return img_0, img_1, img_2, img_3, img_4
 
-def convert_df(df_name,image_list):
-    path = os. getcwd()
-    df_comments = pd.read_csv(f'{path}/raw_data/images_comments.csv')
+def convert_df(df_comments):
+    #path = os. getcwd()
     df_name = {
         'image_name' : [],
         'comments' : []
@@ -91,7 +159,7 @@ def convert_df(df_name,image_list):
     df_name = pd.DataFrame(df_name)
     print('convertet')
     #path = os. getcwd()
-    #df_name.to_csv(f"{path}/raw_data/{df_name}.csv",index=False)
+    df_name.to_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}/{df_name}.csv',index=False)
 
 def get_clust():
     data = pd.DataFrame(store_data)
@@ -161,11 +229,14 @@ def get_clust():
     grouped_classes_df = pd.DataFrame(grouped_classes_df)
     print(grouped_classes_df)#you can comment this line
     #path = os. getcwd()
-    #grouped_classes_df.to_csv(f"{path}/raw_data/grouped_classes_df.csv",index=False)
+    grouped_classes_df.to_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}/grouped_classes_df.csv',index=False)
 
 if __name__ == "__main__":
+    df_im,df_comments = get_data()
     store_data = store_data()
-    culster_model()
+    classefier_model()
+    culster_model(df_im)
+    convert_df(df_comments)
     get_clust()
     img_0, img_1, img_2, img_3, img_4 = display_data()
     convert_df('df_images_0', img_0)
