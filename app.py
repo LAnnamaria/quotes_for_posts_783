@@ -10,6 +10,7 @@ import datetime
 import requests
 
 
+
 st.markdown(f'<h1 style="color:#FFFFFF;font-size:60px;">{"Quotes For Posts"}</h1>', unsafe_allow_html=True)
 st.markdown(f'<h1 style="color:#E1E1E1;font-size:30px;">{"Wondering how to caption your picture? Let me give you a suitable quote as a suggestion 📸"}</h1>', unsafe_allow_html=True)
 
@@ -31,6 +32,8 @@ with st.expander("See explanation"):
 
 
 
+
+
 #Sidebar
 
 st.sidebar.markdown("# Control Panel")
@@ -38,11 +41,12 @@ st.sidebar.markdown("""---""")
 
 SIDEBAR_OPTION_DEMO_IMAGE = "Select a Demo Image"
 SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image"
-SIDEBAR_OPTION_TEAM="More about our team"
+SIDEBAR_OPTION_JUST_TAGS="Just using tags"
+SIDEBAR_OPTION_TEAM="More about our team 💼"
 
 DEMO_PHOTO_SIDEBAR_OPTIONS=["None","Cat","Dance","Galexy","Paris"]
-SIDEBAR_OPTIONS = [ SIDEBAR_OPTION_DEMO_IMAGE, SIDEBAR_OPTION_UPLOAD_IMAGE,SIDEBAR_OPTION_TEAM]
-app_mode = st.sidebar.selectbox("Please select from the following", SIDEBAR_OPTIONS)
+SIDEBAR_OPTIONS = [ SIDEBAR_OPTION_DEMO_IMAGE, SIDEBAR_OPTION_UPLOAD_IMAGE,SIDEBAR_OPTION_JUST_TAGS,SIDEBAR_OPTION_TEAM]
+app_mode = st.sidebar.selectbox("Please select from the modes", SIDEBAR_OPTIONS)
 
 quotes_demo=[
 "I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.  Marilyn Monroe",
@@ -51,6 +55,36 @@ quotes_demo=[
 "A friend is someone who knows all about you and still loves you.   Elbert Hubbard",
 "Darkness cannot drive out darkness: only light can do that. Hate cannot drive out hate: only love can do that.   Martin Luther King Jr"
 ]
+
+##############
+# Just Tags  #
+##############
+if app_mode == SIDEBAR_OPTION_JUST_TAGS:
+    st.sidebar.markdown("""---""")
+    st.warning('Just Tags Mode')
+    st.sidebar.write("- Please give us some tags and see the suitable quotes! 🧐")
+    with st.sidebar.form(key="topics", clear_on_submit=True):
+        t1=st.text_input("Tag 1")
+        t2=st.text_input("Tag 2")
+        t3=st.text_input("Tag 3")
+        t4=st.text_input("Tag 4")
+        t5=st.text_input("Tag 5")
+        submitted = st.form_submit_button("Submit Topics & Run!")
+    if submitted:
+        st.sidebar.write("Your Tags:",t1,t2,t3,t4,t5)
+        #Topic list for model
+        added_topics=[t1,t2,t3,t4,t5]
+        #st.write(added_topics)
+        with st.spinner('Wait for it...'):
+                        time.sleep(3)
+                        st.success('Your Quotes are ready!')
+                        with st.container():
+                            for count,ele in enumerate(quotes_demo,1):
+                                st.write(count,ele)
+
+
+
+
 
 
 ###########
@@ -114,7 +148,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
     st.sidebar.warning('Please upload your desired photo.Choose a file in .JPG and Max Size:5 Mb')
     uploaded_file=st.sidebar.file_uploader("")
     st.markdown("""---""")
-    st.warning('User Mode')
+    st.warning('Image Upload Mode')
     if uploaded_file is not None:
         with st.container():
 
@@ -124,13 +158,14 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 st.session_state.count = 0
             cal_b=st.sidebar.button('Show me the suitable quotes')
             if cal_b:
+                st.session_state.load_topics = True
                 with st.spinner('Wait for it...'):
                     time.sleep(3)
                     st.success('Your Quotes are ready!')
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
                          st.write(count,ele)
-                st.sidebar.markdown("""---""")
+
 
 else:
     pass
@@ -139,25 +174,28 @@ else:
 #####################
 #  Not Saticfaction #
 #####################
-st.sidebar.markdown("""---""")
-st.sidebar.write("- If you are not satisfied, do not worry. Please add up to 5 favorite topics and submit. 🧐")
-with st.sidebar.form(key="topics", clear_on_submit=True):
-    t1=st.text_input("Topic 1")
-    t2=st.text_input("Topic 2")
-    t3=st.text_input("Topic 3")
-    t4=st.text_input("Topic 4")
-    t5=st.text_input("Topic 5")
-    submitted = st.form_submit_button("Submit Topics")
-if submitted:
-    st.sidebar.write(t1,t2,t3,t4,t5)
-    #Topic list for model
-    added_topics=[t1,t2,t3,t4,t5]
-    with st.spinner('Wait for it...'):
-                    time.sleep(3)
-                    st.success('Your Quotes are ready!')
-                    with st.container():
-                        for count,ele in enumerate(quotes_demo,1):
-                         st.write(count,ele)
+# Making sure topics section is True + mode is upload
+if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
+    st.sidebar.markdown("""---""")
+    st.sidebar.write("- If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
+    with st.sidebar.form(key="topics", clear_on_submit=True):
+        t1=st.text_input("Tag 1")
+        t2=st.text_input("Tag 2")
+        t3=st.text_input("Tag 3")
+        t4=st.text_input("Tag 4")
+        t5=st.text_input("Tag 5")
+        submitted = st.form_submit_button("Submit Topics & Run!")
+    if submitted:
+        st.sidebar.write("Your Tags:",t1,t2,t3,t4,t5)
+        #Topic list for model
+        added_topics=[t1,t2,t3,t4,t5]
+        #st.write(added_topics)
+        with st.spinner('Wait for it...'):
+                        time.sleep(3)
+                        st.success('Your Quotes are ready!')
+                        with st.container():
+                            for count,ele in enumerate(quotes_demo,1):
+                                st.write(count,ele)
 
 
 
