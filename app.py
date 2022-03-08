@@ -17,55 +17,21 @@ st.markdown("""---""")
 #components.html("""<hr style="height:2px;border:none;color:#333;background-color:#333;" /> """)
 
 st.markdown('#')
-#Project Explaination
-#Figur 1
-# txt = st.text_area('Project Explanation (First Figur)📚:', '''
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      Here we can explain the project briefly
-#      ''')
-# st.markdown('#')
 
 
-
-
-# textsplit = txt.splitlines()
-# st.write('#Project Explaination (Second Figur)')
-# for x in textsplit:
-#     st.write(x)
-
-st.write('Project Explanation (Second Figur) 📚:')
+st.markdown('### About the project 📚:')
 with st.expander("See explanation"):
     st.write("""
-         Here we can explain the project briefly
-    Here we can explain the project briefly
-    Here we can explain the project briefly
-    Here we can explain the project briefly
-    Here we can explain the project briefly
-    Here we can explain the project briefly
-    Here we can explain the project briefly
+         Wondering what caption to use with your picture? Don´t want to spend a lot of time looking for a nice quote online? Get our suggestions within seconds by only one click? If you´re not satisfied, you can give us some help finding the very best quote for you which you can copy and use immediately under your precious memories!
      """)
     st.image("https://pledgeviewer.eu/sites/default/files/2020-05/le-wagon-color.png")
 
 
-#Figur 3
-# st.write('Project Explanation (Third Figur) 📚:')
-# st.text('''
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly
-#     Here we can explain the project briefly''')
 
 
 
 
+#Sidebar
 
 st.sidebar.markdown("# Control Panel")
 st.sidebar.markdown("""---""")
@@ -101,9 +67,6 @@ if app_mode == SIDEBAR_OPTION_TEAM:
 #   Demo  #
 ###########
 if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
-
-
-
 
         photo_select=st.sidebar.selectbox("Please select the photo", DEMO_PHOTO_SIDEBAR_OPTIONS)
         with st.container():
@@ -144,6 +107,8 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
 #  Upload #
 ###########
 #st.session_state.cal_b=False
+#st.session_state.topic=False
+
 if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
 
     st.sidebar.warning('Please upload your desired photo.Choose a file in .JPG and Max Size:5 Mb')
@@ -155,35 +120,17 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
 
             image = Image.open(uploaded_file)
             st.image(image)
-        st.session_state.cal_b=st.sidebar.button('Show me the suitable quotes')
-        if st.session_state.cal_b:
-            with st.spinner('Wait for it...'):
-                time.sleep(3)
-                st.success('Your Quotes are ready!')
-                with st.container():
-                    for count,ele in enumerate(quotes_demo,1):
-                        st.write(count,ele)
-            st.sidebar.markdown("""---""")
-            st.sidebar.write("- If you are not satisfied, do not worry. You can add up to 5 favorite topics. 🧐")
-            with st.sidebar.form(key="topics"):
-                t1=st.text_input("Topic 1")
-                t2=st.text_input("Topic 2")
-                t3=st.text_input("Topic 3")
-                t4=st.text_input("Topic 4")
-                t5=st.text_input("Topic 5")
-
-                submitted=st.form_submit_button("Submit Topics")
-                    #import ipdb; ipdb.set_trace()
-
-                if submitted:
-                    import ipdb; ipdb.set_trace()
-                    st.session_state.t1=t1
-                    st.write(st.session_state.t1)
-                    #Topic list for model
-                    added_topics=[st.session_state.t1,t2,t3,t4,t5]
-    #import ipdb; ipdb.set_trace()
-    if "t1" in st.session_state:
-        st.write(st.session_state.t1)
+            if 'count' not in st.session_state:
+                st.session_state.count = 0
+            cal_b=st.sidebar.button('Show me the suitable quotes')
+            if cal_b:
+                with st.spinner('Wait for it...'):
+                    time.sleep(3)
+                    st.success('Your Quotes are ready!')
+                    with st.container():
+                        for count,ele in enumerate(quotes_demo,1):
+                         st.write(count,ele)
+                st.sidebar.markdown("""---""")
 
 else:
     pass
@@ -192,6 +139,34 @@ else:
 #####################
 #  Not Saticfaction #
 #####################
+st.sidebar.markdown("""---""")
+st.sidebar.write("- If you are not satisfied, do not worry. Please add up to 5 favorite topics and submit. 🧐")
+with st.sidebar.form(key="topics", clear_on_submit=True):
+    t1=st.text_input("Topic 1")
+    t2=st.text_input("Topic 2")
+    t3=st.text_input("Topic 3")
+    t4=st.text_input("Topic 4")
+    t5=st.text_input("Topic 5")
+    submitted = st.form_submit_button("Submit Topics")
+if submitted:
+    st.sidebar.write(t1,t2,t3,t4,t5)
+    #Topic list for model
+    added_topics=[t1,t2,t3,t4,t5]
+    with st.spinner('Wait for it...'):
+                    time.sleep(3)
+                    st.success('Your Quotes are ready!')
+                    with st.container():
+                        for count,ele in enumerate(quotes_demo,1):
+                         st.write(count,ele)
+
+
+
+# st.session_state.input=True
+# if st.session_state.topic==True :
+#     st.session_state.input=True
+#     st.sidebar.write("- If you are not satisfied, do not worry. You can add up to 5 favorite topics. 🧐")
+#     t1=st.sidebar.text_input("A")
+#     st.sidebar.write(t1)
 
 #more_topic=st.sidebar.button('Add Topics',disabled=True)
 
