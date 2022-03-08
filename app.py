@@ -81,8 +81,7 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                st.write(count,ele)
-                                st.code(quotes_demo[x])
+                                st.code(st.write(count,ele))
 
 
 
@@ -135,8 +134,8 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     st.success('Your Quotes are ready')
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
-                            st.write(count,ele)
-                            st.code(ele)
+                            st.code(st.write(count,ele))
+
 
         else:
             pass
@@ -171,8 +170,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 st.success('Your Quotes are ready!')
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
-                        st.write(count,ele)
-                        st.code(ele)
+                        st.code(st.write(count,ele))
                 st.markdown("""---""")
                 st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
@@ -205,8 +203,7 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                st.write(count,ele)
-                                st.code(ele)
+                                st.code(st.write(count,ele))
 
 
 
