@@ -55,8 +55,7 @@ quotes_demo=[
 "A friend is someone who knows all about you and still loves you.   Elbert Hubbard",
 "Darkness cannot drive out darkness: only light can do that. Hate cannot drive out hate: only love can do that.   Martin Luther King Jr"
 ]
-for x in range(5):
-    st.code(quotes_demo[x])
+
 
 ##############
 # Just Tags  #
@@ -83,6 +82,8 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 st.write(count,ele)
+                                for x in range(5):
+                                    st.code(quotes_demo[x])
 
 
 
@@ -136,6 +137,8 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
                             st.write(count,ele)
+                            for x in range(5):
+                                    st.code(quotes_demo[x])
         else:
             pass
 
