@@ -165,6 +165,8 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
                          st.write(count,ele)
+                    st.markdown("""---""")
+                    st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
 
 else:
@@ -177,7 +179,7 @@ else:
 # Making sure topics section is True + mode is upload
 if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
     st.sidebar.markdown("""---""")
-    st.sidebar.write("- If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
+    st.sidebar.write("- Give us your tags and submit!")
     with st.sidebar.form(key="topics", clear_on_submit=True):
         t1=st.text_input("Tag 1")
         t2=st.text_input("Tag 2")
