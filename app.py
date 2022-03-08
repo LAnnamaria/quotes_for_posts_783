@@ -55,6 +55,8 @@ quotes_demo=[
 "A friend is someone who knows all about you and still loves you.   Elbert Hubbard",
 "Darkness cannot drive out darkness: only light can do that. Hate cannot drive out hate: only love can do that.   Martin Luther King Jr"
 ]
+for x in range(5):
+    st.code(quotes_demo[x])
 
 ##############
 # Just Tags  #
