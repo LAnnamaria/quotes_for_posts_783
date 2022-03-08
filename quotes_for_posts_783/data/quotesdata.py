@@ -5,7 +5,7 @@ import os
 def get_quotes_data():
     '''returns a DataFrame with 500k quotes, their authors and categories'''
     path = os. getcwd()
-    quotes = pd.read_csv(f"{path}/raw_data/quotes - reduced.csv")
+    quotes = pd.read_csv(f"{path}/raw_data/quotes.csv")
     return quotes
 
 def remove_punctuations(text):

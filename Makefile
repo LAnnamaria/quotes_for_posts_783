@@ -73,3 +73,17 @@ heroku_create_app:
 deploy_heroku:
 	-@git push heroku master
 	-@heroku ps:scale web=1
+
+
+BUCKET_NAME=wagon-data-783-libor
+
+REGION=europe-west1
+
+PYTHON_VERSION=3.7
+FRAMEWORK=scikit-learn
+RUNTIME_VERSION=1.15
+
+PACKAGE_NAME=SimpleTaxiFare
+FILENAME=trainer
+
+JOB_NAME=quotes_for_posts$(shell date +'%Y%m%d_%H%M%S')
