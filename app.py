@@ -155,9 +155,8 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
             image = Image.open(uploaded_file)
             st.image(image)
             path = os.getcwd()
-            with open((f"{path}/tempDir"),"wb") as f:
+            with open(f"{path}/tempDir","wb") as f:
                 f.write(uploaded_file.getbuffer())
-        #st.session_state.cal_b=st.sidebar.button('Show me the suitable quotes')
         if 'count' not in st.session_state:
             st.session_state.count = 0
         cal_b=st.sidebar.button('Show me the suitable quotes')
