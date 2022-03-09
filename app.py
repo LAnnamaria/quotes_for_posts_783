@@ -6,10 +6,12 @@ from PIL import Image
 import time
 import os
 import datetime
-
 import requests
+from textwrap3 import wrap
+import pyperclip as pc
+import ipdb
 
-
+st.session_state.wrapped_quotes = {}
 
 st.markdown(f'<h1 style="color:#FFFFFF;font-size:60px;">{"Quotes For Posts"}</h1>', unsafe_allow_html=True)
 st.markdown(f'<h1 style="color:#E1E1E1;font-size:30px;">{"Wondering how to caption your picture? Let me give you a suitable quote as a suggestion 📸"}</h1>', unsafe_allow_html=True)
@@ -28,11 +30,9 @@ with st.expander("See more about the Quotes for your Posts"):
     path = os.getcwd()
     st.image(f"{path}/demo_images/Le Wagon.png")
 
-
-
-
-
-
+# def pc.copy(text):
+#     command = 'echo ' + text.strip() + '| clip'
+#     os.system(command)
 
 
 #Sidebar
@@ -83,8 +83,12 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
+                                st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
                                 columns[0].markdown(count)
-                                columns[1].code(f'"{ele}"')
+                                columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
+                                if st.button(f"Copy quote {count} to clipboard"):
+                                    pc.copy(st.session_state.wrapped_quotes[count])
+
 
 
 
@@ -138,10 +142,20 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     time.sleep(3)
                     st.success('Your Quotes are ready')
                     with st.container():
+
                         for count,ele in enumerate(quotes_demo,1):
                             columns = st.columns([0.01,1.5])
+                            st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
                             columns[0].markdown(count)
-                            columns[1].code(f'"{ele}"')
+                            ipdb.set_trace()
+                            columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
+                            if st.button(f"Copy quote {count} to clipboard"):
+                                pc.copy(st.session_state.wrapped_quotes[count])
+
+                            # if st.button(f"Copy quote {count} to clipboard"):
+                            #     pc.copy(st.session_state.wrapped_quote)
+                            #columns[1].code(f'"{st.session_state.wrapped_quote}"')
+                            #columns[1].code(str("\n".join(wrap(f'"{ele}"',width=80))))
 
 
         else:
@@ -178,10 +192,14 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
                         columns = st.columns([0.01,1.5])
+                        wrapped_quote = {count:"\n".join(wrap(ele,width=80))}
                         columns[0].markdown(count)
-                        columns[1].code(f'"{ele}"')
-                        #st.write(count)
-                        #st.code(f'"{ele}"')
+                        columns[1].markdown(f'"{wrapped_quote}"')
+
+                        if st.button(f"Copy quote {count} to clipboard"):
+                            pc.copy(wrapped_quote[count])
+
+
                 st.markdown("""---""")
                 st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
@@ -215,8 +233,13 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
+                                wrapped_quote = {count:"\n".join(wrap(ele,width=80))}
                                 columns[0].markdown(count)
-                                columns[1].code(f'"{ele}"')
+                                columns[1].markdown(f'"{wrapped_quote}"')
+                                if st.button(f"Copy quote {count} to clipboard"):
+                                    pc.copy(wrapped_quote[count])
+
+
 
 
 
