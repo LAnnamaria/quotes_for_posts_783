@@ -25,7 +25,7 @@ with st.expander("See explanation"):
     st.write("""
          Wondering what caption to use with your picture? Don´t want to spend a lot of time looking for a nice quote online? Get our suggestions within seconds by only one click? If you´re not satisfied, you can give us some help finding the very best quote for you which you can copy and use immediately under your precious memories!
      """)
-    st.image("https://pledgeviewer.eu/sites/default/files/2020-05/le-wagon-color.png")
+    st.image("/home/ali/code/LAnnamaria/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Le Wagon.png")
 
 
 
