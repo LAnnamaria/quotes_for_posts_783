@@ -6,10 +6,8 @@ from PIL import Image
 import time
 import os
 import datetime
-
 import requests
-
-
+from textwrap3 import wrap
 
 st.markdown(f'<h1 style="color:#FFFFFF;font-size:60px;">{"Quotes For Posts"}</h1>', unsafe_allow_html=True)
 st.markdown(f'<h1 style="color:#E1E1E1;font-size:30px;">{"Wondering how to caption your picture? Let me give you a suitable quote as a suggestion 📸"}</h1>', unsafe_allow_html=True)
@@ -83,8 +81,9 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
+                                wrapped_quote = str("\n".join(wrap(ele,width=80)))
                                 columns[0].markdown(count)
-                                columns[1].code(f'"{ele}"')
+                                columns[1].code(f'"{wrapped_quote}"')
 
 
 
@@ -140,8 +139,10 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
                             columns = st.columns([0.01,1.5])
+                            wrapped_quote = str("\n".join(wrap(ele,width=80)))
                             columns[0].markdown(count)
-                            columns[1].code(f'"{ele}"')
+                            columns[1].code(f'"{wrapped_quote}"')
+                            #columns[1].code(str("\n".join(wrap(f'"{ele}"',width=80))))
 
 
         else:
@@ -178,8 +179,9 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
                         columns = st.columns([0.01,1.5])
+                        wrapped_quote = str("\n".join(wrap(ele,width=80)))
                         columns[0].markdown(count)
-                        columns[1].code(f'"{ele}"')
+                        columns[1].code(f'"{wrapped_quote}"')
                         #st.write(count)
                         #st.code(f'"{ele}"')
                 st.markdown("""---""")
@@ -215,8 +217,9 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
+                                wrapped_quote = str("\n".join(wrap(ele,width=80)))
                                 columns[0].markdown(count)
-                                columns[1].code(f'"{ele}"')
+                                columns[1].code(f'"{wrapped_quote}"')
 
 
 
