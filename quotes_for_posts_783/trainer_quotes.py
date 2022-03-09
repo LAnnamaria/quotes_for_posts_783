@@ -12,10 +12,10 @@ from sklearn.pipeline import Pipeline
 import joblib
 
 class QuotesTrainer():
-    def __init__(self, quotes):
+    def __init__(self, quotes,image_caption):
         """
             quotes is a dataframe with the image_caption already incorporated at index -1
-            
+
         """
         self.vectorizer = TfidfVectorizer(max_df=0.75, min_df=0.1, stop_words="english",ngram_range=(1,2),norm='l1')
         self.image_caption = image_caption
@@ -23,13 +23,13 @@ class QuotesTrainer():
         self.image_topic = None
         self.own_tags = None
 
-   
+
     def set_pipeline(self):
         """defines the pipeline as a class attribute"""
         lda_model = LatentDirichletAllocation(learning_decay=1, n_components=5)
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         joblib.dump(topic_pipeline,'top5.joblib')
-        
+
 
     def run(self):
         """set and train the pipeline"""
@@ -73,12 +73,12 @@ class QuotesTrainer():
         return result_most_s
 
 if __name__ == "__main__":
-    image_caption = 'It will be added from Mohana´s model'
+    cap = 'It will be added from Mohana´s model'
     quotes = qd.get_quotes_data()
     quotes = qd.clean_data(quotes)
-    quotes = u.image_cap_to_quotes(quotes,image_caption)
-    
-    trainer = QuotesTrainer(quotes)
+    quotes = u.image_cap_to_quotes(quotes,cap)
+
+    trainer = QuotesTrainer(quotes,cap)
     #trainer.set_pipeline()
     trainer.run()
     print(trainer.top5())
@@ -88,6 +88,3 @@ if __name__ == "__main__":
     else:
         own_tags = input("Please give me 5 words that are descriptive of your picture:")
         print(trainer.most_suitable(own_tags))
-    
-
-    

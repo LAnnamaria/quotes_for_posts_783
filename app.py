@@ -158,12 +158,6 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
             image = Image.open(uploaded_file)
             st.image(image)
             path = os.getcwd()
-<<<<<<< HEAD
-            with open((f"{path}/tempDir"),"wb") as f:
-                f.write(uploaded_file.getbuffer())
-        st.session_state.cal_b=st.sidebar.button('Show me the suitable quotes')
-        if st.session_state.cal_b:
-=======
             with open(f"{path}/tempDir","wb") as f:
                 f.write(uploaded_file.getbuffer())
         if 'count' not in st.session_state:
@@ -171,7 +165,6 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
         cal_b=st.sidebar.button('Show me the suitable quotes')
         if cal_b:
             st.session_state.load_topics = True
->>>>>>> 6f20da922727fd820ab38122d2e9c75d5fe61ad3
             with st.spinner('Wait for it...'):
                 time.sleep(3)
                 st.success('Your Quotes are ready!')
