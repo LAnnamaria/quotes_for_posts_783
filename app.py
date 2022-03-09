@@ -21,11 +21,12 @@ st.markdown('#')
 
 
 st.markdown('### About the project 📚:')
-with st.expander("See explanation"):
+with st.expander("See more about the Quotes for your Posts"):
     st.write("""
          Wondering what caption to use with your picture? Don´t want to spend a lot of time looking for a nice quote online? Get our suggestions within seconds by only one click! If you´re not satisfied, you can give us some help finding the very best quote for you which you can copy and use immediately under your precious memories!
      """)
-    st.image("/home/ali/code/LAnnamaria/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Le Wagon.png")
+    path = os.getcwd()
+    st.image(f"{path}/demo_images/Le Wagon.png")
 
 
 
@@ -44,7 +45,7 @@ SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image"
 SIDEBAR_OPTION_JUST_TAGS="Just using tags"
 SIDEBAR_OPTION_TEAM="More about our team 💼"
 
-DEMO_PHOTO_SIDEBAR_OPTIONS=["None","Cat","Dance","Galexy","Paris"]
+DEMO_PHOTO_SIDEBAR_OPTIONS=["None","Cat","Dance","Galaxy","Paris"]
 SIDEBAR_OPTIONS = [ SIDEBAR_OPTION_DEMO_IMAGE, SIDEBAR_OPTION_UPLOAD_IMAGE,SIDEBAR_OPTION_JUST_TAGS,SIDEBAR_OPTION_TEAM]
 app_mode = st.sidebar.selectbox("Please select from the modes", SIDEBAR_OPTIONS)
 
@@ -82,7 +83,7 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
-                                columns[0].write(count)
+                                columns[0].markdown(count)
                                 columns[1].code(f'"{ele}"')
 
 
@@ -110,20 +111,22 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
             st.markdown("""---""")
             st.warning('Demo Mode')
 
+        path = os.getcwd()
+
         if photo_select=="Cat":
-            image = Image.open('/home/ali/code/quotes_for_posts_783_front_end/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Cat.jpg')
+            image = Image.open(f'{path}/demo_images/Cat.jpg')
             st.image(image, caption='Cat is playing')
 
         if photo_select=="Dance":
-            image = Image.open('/home/ali/code/quotes_for_posts_783_front_end/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Dance.jpg')
+            image = Image.open(f'{path}/demo_images/Dance.jpg')
             st.image(image, caption='Dancing in the club')
 
-        if photo_select=="Galexy":
-            image = Image.open('/home/ali/code/quotes_for_posts_783_front_end/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Galexy.jpg')
-            st.image(image, caption='Amazing Galexy')
+        if photo_select=="Galaxy":
+            image = Image.open(f'{path}/demo_images/Galaxy.jpg')
+            st.image(image, caption='Amazing Galaxy')
 
         if photo_select=="Paris":
-            image = Image.open('/home/ali/code/quotes_for_posts_783_front_end/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Paris.jpg')
+            image = Image.open(f'{path}/demo_images/Paris.jpg')
             st.image(image, caption='Beauty Paris')
 
         st.markdown("""---""")
@@ -137,7 +140,7 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
                             columns = st.columns([0.01,1.5])
-                            columns[0].write(count)
+                            columns[0].markdown(count)
                             columns[1].code(f'"{ele}"')
 
 
@@ -175,7 +178,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
                         columns = st.columns([0.01,1.5])
-                        columns[0].write(count)
+                        columns[0].markdown(count)
                         columns[1].code(f'"{ele}"')
                         #st.write(count)
                         #st.code(f'"{ele}"')
@@ -212,7 +215,7 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
                                 columns = st.columns([0.01,1.5])
-                                columns[0].write(count)
+                                columns[0].markdown(count)
                                 columns[1].code(f'"{ele}"')
 
 
