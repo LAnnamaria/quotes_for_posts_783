@@ -1,4 +1,4 @@
-import quotes_for_posts_783.data.quotesdata as qd
+import quotes_for_posts_783.quotesdata as qd
 
 def image_cap_to_quotes(quotes,image_caption):
     

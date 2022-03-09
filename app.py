@@ -23,9 +23,9 @@ st.markdown('#')
 st.markdown('### About the project 📚:')
 with st.expander("See explanation"):
     st.write("""
-         Wondering what caption to use with your picture? Don´t want to spend a lot of time looking for a nice quote online? Get our suggestions within seconds by only one click? If you´re not satisfied, you can give us some help finding the very best quote for you which you can copy and use immediately under your precious memories!
+         Wondering what caption to use with your picture? Don´t want to spend a lot of time looking for a nice quote online? Get our suggestions within seconds by only one click! If you´re not satisfied, you can give us some help finding the very best quote for you which you can copy and use immediately under your precious memories!
      """)
-    st.image("https://pledgeviewer.eu/sites/default/files/2020-05/le-wagon-color.png")
+    st.image("/home/ali/code/LAnnamaria/quotes_for_posts_783/raw_data/front_end_dir/demo_images/Le Wagon.png")
 
 
 
@@ -81,7 +81,9 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                (st.write(count,st.code(ele)))
+                                columns = st.columns([0.01,1.5])
+                                columns[0].write(count)
+                                columns[1].code(f'"{ele}"')
 
 
 
@@ -134,7 +136,9 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     st.success('Your Quotes are ready')
                     with st.container():
                         for count,ele in enumerate(quotes_demo,1):
-                            st.write(count,st.code(ele))
+                            columns = st.columns([0.01,1.5])
+                            columns[0].write(count)
+                            columns[1].code(f'"{ele}"')
 
 
         else:
@@ -170,7 +174,11 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 st.success('Your Quotes are ready!')
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
-                        st.write(count,st.code(ele))
+                        columns = st.columns([0.01,1.5])
+                        columns[0].write(count)
+                        columns[1].code(f'"{ele}"')
+                        #st.write(count)
+                        #st.code(f'"{ele}"')
                 st.markdown("""---""")
                 st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
@@ -203,7 +211,9 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                st.write(count,st.code(ele))
+                                columns = st.columns([0.01,1.5])
+                                columns[0].write(count)
+                                columns[1].code(f'"{ele}"')
 
 
 

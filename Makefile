@@ -35,17 +35,17 @@ BUCKET_TRAINING_FOLDER = 'quotes_for_your_posts'
 REGION=europe-west1
 
 PYTHON_VERSION=3.7
-FRAMEWORK=scikit-learn
+FRAMEWORK=TensorFlow
 RUNTIME_VERSION=2.6
 
 ##### Package params  - - - - - - - - - - - - - - - - - - -
 
 PACKAGE_NAME=quotes_for_posts_783
-FILENAME=trainer_images_lists
+FILENAME=trainer_image_caption_1
 
 ##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
 
-JOB_NAME=quotes_for_posts_783_$(shell date +'%Y%m%d_%H%M%S')
+JOB_NAME=quotes_for_posts_783_quotes_$(shell date +'%Y%m%d_%H%M%S')
 
 
 # ----------------------------------
