@@ -1,6 +1,6 @@
 from lzma import MODE_FAST
 import pandas as pd
-import quotes_for_posts_783.data.quotesdata as qd
+import quotes_for_posts_783.quotesdata as qd
 import quotes_for_posts_783.utils as u
 import pandas as pd
 from sklearn.decomposition import LatentDirichletAllocation
@@ -10,6 +10,39 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 import joblib
+from google.cloud import storage
+
+
+BUCKET_NAME = 'quotes_for_posts_783'
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+STORAGE_LOCATION_1 = 'quotes_for_posts_783/top5.joblib'
+STORAGE_LOCATION_2 = 'quotes_for_posts_783/nn_min.joblib'
+STORAGE_LOCATION_3 = 'quotes_for_posts_783/nn_euc.joblib'
+
+def get_data():
+    """method to get the training data (or a portion of it) from google cloud bucket"""
+    df_im = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
+    #df_im = df_im.head(10)
+    df_comments = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_2}')
+    return df_im, df_comments
+
+def upload_model_to_gcp_1():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_1)
+    blob.upload_from_filename('top5.joblib')
+def upload_model_to_gcp_2():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_2)
+    blob.upload_from_filename('nn_min.joblib')
+def upload_model_to_gcp_3():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_3)
+    blob.upload_from_filename('nn_euc.joblib')
+
 
 class QuotesTrainer():
     def __init__(self, quotes):
@@ -18,7 +51,7 @@ class QuotesTrainer():
             
         """
         self.vectorizer = TfidfVectorizer(max_df=0.75, min_df=0.1, stop_words="english",ngram_range=(1,2),norm='l1')
-        self.image_caption = image_caption
+        #self.image_caption = image_caption
         self.quotes = quotes
         self.image_topic = None
         self.own_tags = None
@@ -29,7 +62,8 @@ class QuotesTrainer():
         lda_model = LatentDirichletAllocation(learning_decay=1, n_components=5)
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         joblib.dump(topic_pipeline,'top5.joblib')
-        
+        upload_model_to_gcp_1()
+        print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
 
     def run(self):
         """set and train the pipeline"""
@@ -48,6 +82,8 @@ class QuotesTrainer():
         tfidf_weight = self.vectorizer.fit_transform(only_topic['list_tags'].values.astype('U'))
         nn_min = NearestNeighbors(metric = 'minkowski')
         joblib.dump(nn_min,'nn_min.joblib')
+        upload_model_to_gcp_2()
+        print(f"uploaded nn_min.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_2}")
         nn_min = joblib.load('nn_min.joblib')
         nn_min.fit(tfidf_weight)
         image_index = -1
@@ -63,6 +99,8 @@ class QuotesTrainer():
         tfidf_weight = self.vectorizer.fit_transform(most_suiting['list_tags'].values.astype('U'))
         nn_euc = NearestNeighbors(metric = 'euclidean')
         joblib.dump(nn_euc,'nn_euc.joblib')
+        upload_model_to_gcp_3()
+        print(f"uploaded nn_euc.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_3}")
         nn_euc = joblib.load('nn_euc.joblib')
         nn_euc.fit(tfidf_weight)
         image_index = -1
@@ -73,13 +111,13 @@ class QuotesTrainer():
         return result_most_s
 
 if __name__ == "__main__":
-    image_caption = 'It will be added from Mohana´s model'
+    #image_caption = 'It will be added from Mohana´s model'
     quotes = qd.get_quotes_data()
     quotes = qd.clean_data(quotes)
-    quotes = u.image_cap_to_quotes(quotes,image_caption)
+    #quotes = u.image_cap_to_quotes(quotes,image_caption)
     
     trainer = QuotesTrainer(quotes)
-    #trainer.set_pipeline()
+    trainer.set_pipeline()
     trainer.run()
     print(trainer.top5())
     satisfied = input('Are you satisfied with any of these quotes? Y/N')
