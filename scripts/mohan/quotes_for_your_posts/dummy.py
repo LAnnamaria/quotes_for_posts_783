@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import array
-
+from google.cloud import storage
 import string
 import os
 import glob
@@ -69,11 +69,11 @@ def classefier_model():
     MyModel.layers[0].trainable = False
     joblib.dump(MyModel, 'model.joblib')
 
-token_path = "raw_data/Flickr8k_text/Flickr8k.token.txt"
-train_images_path = 'raw_data/Flickr8k_text/Flickr_8k.trainImages.txt'
-test_images_path = 'raw_data/Flickr8k_text/Flickr_8k.testImages.txt'
-images_path = 'raw_data/Flicker8k_Dataset/'
-glove_path = 'raw_data/glove.6B.300d.txt'
+token_path = "Flickr8k_text/Flickr8k.token.txt"
+train_images_path = 'Flickr8k_text/Flickr_8k.trainImages.txt'
+test_images_path = 'Flickr8k_text/Flickr_8k.testImages.txt'
+images_path = 'Flicker8k_Dataset/'
+glove_path = 'glove.6B.300d.txt'
 
 doc = open(token_path,'r').read()
 print(doc[:410])
