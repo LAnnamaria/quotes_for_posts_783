@@ -14,9 +14,14 @@ MODEL_VERSION = 'v1'
 
 def get_quotes_data():
     '''returns a DataFrame with 500k quotes, their authors and categories'''
+<<<<<<< HEAD:quotes_for_posts_783/quotesdata.py
     #path = os. getcwd()
     quotes = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}')
     
+=======
+    path = os. getcwd()
+    quotes = pd.read_csv(f"{path}/raw_data/quotes.csv")
+>>>>>>> bf2c607e60a808e57d49dff4f8b46f8f57eb58c3:quotes_for_posts_783/data/quotesdata.py
     return quotes
 
 def remove_punctuations(text):
