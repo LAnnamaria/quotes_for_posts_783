@@ -170,7 +170,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 st.success('Your Quotes are ready!')
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
-                        st.write(count,st.code(ele))
+                        st.write(count,st.code(f'"{ele}"'))
                 st.markdown("""---""")
                 st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
