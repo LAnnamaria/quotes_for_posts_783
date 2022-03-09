@@ -20,12 +20,6 @@ STORAGE_LOCATION_1 = 'quotes_for_posts_783/top5.joblib'
 STORAGE_LOCATION_2 = 'quotes_for_posts_783/nn_min.joblib'
 STORAGE_LOCATION_3 = 'quotes_for_posts_783/nn_euc.joblib'
 
-def get_data():
-    """method to get the training data (or a portion of it) from google cloud bucket"""
-    df_im = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
-    #df_im = df_im.head(10)
-    df_comments = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_2}')
-    return df_im, df_comments
 
 def upload_model_to_gcp_1():
     client = storage.Client()
@@ -51,7 +45,7 @@ class QuotesTrainer():
 
         """
         self.vectorizer = TfidfVectorizer(max_df=0.75, min_df=0.1, stop_words="english",ngram_range=(1,2),norm='l1')
-        #self.image_caption = image_caption
+        self.image_caption = image_caption
         self.quotes = quotes
         self.image_topic = None
         self.own_tags = None
@@ -62,12 +56,8 @@ class QuotesTrainer():
         lda_model = LatentDirichletAllocation(learning_decay=1, n_components=5)
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         joblib.dump(topic_pipeline,'top5.joblib')
-<<<<<<< HEAD
-
-=======
         upload_model_to_gcp_1()
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
->>>>>>> e7e4abab19bae76d6e829280f968bfb13b804c9a
 
     def run(self):
         """set and train the pipeline"""
@@ -115,23 +105,12 @@ class QuotesTrainer():
         return result_most_s
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    cap = 'It will be added from Mohana´s model'
-    quotes = qd.get_quotes_data()
-    quotes = qd.clean_data(quotes)
-    quotes = u.image_cap_to_quotes(quotes,cap)
+    image_caption = 'It will be added from Mohana´s model'
+    quotes = qd.clean_data()
+    quotes = u.image_cap_to_quotes(quotes,image_caption)
 
-    trainer = QuotesTrainer(quotes,cap)
-    #trainer.set_pipeline()
-=======
-    #image_caption = 'It will be added from Mohana´s model'
-    quotes = qd.get_quotes_data()
-    quotes = qd.clean_data(quotes)
-    #quotes = u.image_cap_to_quotes(quotes,image_caption)
-    
-    trainer = QuotesTrainer(quotes)
+    trainer = QuotesTrainer(quotes,image_caption)
     trainer.set_pipeline()
->>>>>>> e7e4abab19bae76d6e829280f968bfb13b804c9a
     trainer.run()
     print(trainer.top5())
     satisfied = input('Are you satisfied with any of these quotes? Y/N')
