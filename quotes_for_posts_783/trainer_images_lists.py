@@ -50,9 +50,8 @@ STORAGE_LOCATION = 'quotes_for_posts_783/trainer_images_lists_model.joblib'
 def get_data():
     """method to get the training data (or a portion of it) from google cloud bucket"""
     df_im = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
-
+    #df_im = df_im.head(10)
     df_comments = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_2}')
-    df_comments
     return df_im, df_comments
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
@@ -93,31 +92,26 @@ def classefier_model():
     print(f"uploaded model.joblib to gcp cloud storage under \n => {STORAGE_LOCATION}")
 
 
-def LoadDataAndDoEssentials(img_blob, h, w):
+def LoadDataAndDoEssentials(df_im):
     loaded_model = joblib.load('trainer_images_lists_model.joblib')
-    img = mpimg.imread(img_blob)
-    img = cv2.resize(img, (h, w))
-    ## Expanding image dims so this represents 1 sample
-    img = np.expand_dims(img, 0)
-    img = resnet50.preprocess_input(img)
-    extractedFeatures = loaded_model.predict(img)
-    classes_x=np.argmax(extractedFeatures,axis=1)[0]
-    extractedFeatures = np.array(extractedFeatures)
-    store_data['photoclass'].append(classes_x)
-    store_data['flattenPhoto'].append(extractedFeatures.flatten())
-
-def ReadAndStoreMyImages(df_im):
-    #pathi = os. getcwd()
     images = list(df_im['image_name'])
     for i in images:
         imagePath = f'{BUCKET_TRAIN_DATA_PATH_3}/{i}.jpg'
-        img_blob = download_blob(BUCKET_NAME, imagePath, '../quotes_for_posts_783/data')
+        download_blob(BUCKET_NAME, imagePath, 'temp.jpg')
         store_data['image_name'].append(i)
-        img_temp_path = '../quotes_for_posts_783/data'
-        LoadDataAndDoEssentials(img_temp_path, 224, 224)
+        img = mpimg.imread('temp.jpg')
+        img = cv2.resize(img, (224, 224))
+        ## Expanding image dims so this represents 1 sample
+        img = np.expand_dims(img, 0)
+        img = resnet50.preprocess_input(img)
+        extractedFeatures = loaded_model.predict(img)
+        classes_x=np.argmax(extractedFeatures,axis=1)[0]
+        extractedFeatures = np.array(extractedFeatures)
+        store_data['photoclass'].append(classes_x)
+        store_data['flattenPhoto'].append(extractedFeatures.flatten())
 
 def culster_model(df_im):
-    ReadAndStoreMyImages(df_im)
+    LoadDataAndDoEssentials(df_im)
     Training_Feature_vector = np.array(store_data['flattenPhoto'], dtype = 'float64')
     kmeans = AgglomerativeClustering(n_clusters = 5)
     k = kmeans.fit_predict(Training_Feature_vector)
@@ -142,8 +136,10 @@ def display_data():
             img_4 = list(g_im[1][i]['image_name'])
     return img_0, img_1, img_2, img_3, img_4
 
-def convert_df(df_comments):
+def convert_df(file_name,image_list):
     #path = os. getcwd()
+    df_im, df_comments = get_data()
+    print(list(df_comments.columns))
     df_name = {
         'image_name' : [],
         'comments' : []
@@ -159,9 +155,16 @@ def convert_df(df_comments):
     df_name = pd.DataFrame(df_name)
     print('convertet')
     #path = os. getcwd()
-    df_name.to_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}/{df_name}.csv',index=False)
+    df_name.to_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}/{file_name}.csv',index=False)
 
 def get_clust():
+    img_0, img_1, img_2, img_3, img_4 = display_data()
+    convert_df('df_images_0', img_0)
+    convert_df('df_images_1', img_1)
+    convert_df('df_images_2', img_2)
+    convert_df('df_images_3', img_3)
+    convert_df('df_images_4', img_4)
+
     data = pd.DataFrame(store_data)
     data = data.sort_values('photoclass').reset_index()
     for i in range(5):
@@ -236,11 +239,4 @@ if __name__ == "__main__":
     store_data = store_data()
     classefier_model()
     culster_model(df_im)
-    convert_df(df_comments)
     get_clust()
-    img_0, img_1, img_2, img_3, img_4 = display_data()
-    convert_df('df_images_0', img_0)
-    convert_df('df_images_1', img_1)
-    convert_df('df_images_2', img_2)
-    convert_df('df_images_3', img_3)
-    convert_df('df_images_4', img_4)

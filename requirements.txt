@@ -8,6 +8,7 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
+Keras
 
 # tests/linter
 black
@@ -33,3 +34,5 @@ termcolor
 tensorflow
 opencv-python
 matplotlib
+pillow
+tqdm
