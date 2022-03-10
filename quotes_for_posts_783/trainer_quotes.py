@@ -66,11 +66,12 @@ class QuotesTrainer():
         self.vectorizer = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         trained = topic_pipeline
-        trained_topics = trained.fit_transform(self.quotes.list_tags)
-        print(trained_topics[0])
+        trained_topics = trained.fit(self.quotes.list_tags)
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
+        trained_topics = trained.transform(self.quotes.list_tags)
+        print(trained_topics[0])
         for index,row in self.quotes.iterrows():
             self.quotes['topic'] = self.quotes.quote.copy()
         for index,row in self.quotes.iterrows():
