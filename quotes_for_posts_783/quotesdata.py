@@ -1,3 +1,4 @@
+from urllib.parse import quote_plus
 import pandas as pd
 import string
 import os
@@ -14,15 +15,18 @@ MODEL_VERSION = 'v1'
 
 def get_quotes_data():
     '''returns a DataFrame with 500k quotes, their authors and categories'''
-<<<<<<< HEAD:quotes_for_posts_783/quotesdata.py
+#<<<<<<< HEAD:quotes_for_posts_783/quotesdata.py
     #path = os. getcwd()
-    quotes = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}')
-    
-=======
-    path = os. getcwd()
-    quotes = pd.read_csv(f"{path}/raw_data/quotes.csv")
->>>>>>> bf2c607e60a808e57d49dff4f8b46f8f57eb58c3:quotes_for_posts_783/data/quotesdata.py
-    return quotes
+    pass
+#=======
+ #   path = os. getcwd()
+#<<<<<<< HEAD:quotes_for_posts_783/data/quotesdata.py
+ #   quotes = pd.read_csv(f"{path}/raw_data/quotes - reduced.csv")
+#=======
+  #  quotes = pd.read_csv(f"{path}/raw_data/quotes.csv")
+#>>>>>>> bf2c607e60a808e57d49dff4f8b46f8f57eb58c3:quotes_for_posts_783/data/quotesdata.py
+#>>>>>>> e7e4abab19bae76d6e829280f968bfb13b804c9a:quotes_for_posts_783/quotesdata.py
+
 
 def remove_punctuations(text):
     '''removes punctuation from a given text'''
@@ -30,7 +34,10 @@ def remove_punctuations(text):
         text = text.replace(punctuation, '')
     return text
 
-def clean_data(quotes, test=False):
+def clean_data(test=False):
+
+    quotes =  pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}')
+   # quotes = quotes.head(10000)
     '''setting everything to lowercase, replacing - with , and deleting duplicate tags in category
     (creating list_tags for further use) and adding an extra column called count_tags. Returning the quotes dataframe'''
     for index, row in quotes.iterrows():
@@ -46,6 +53,4 @@ def clean_data(quotes, test=False):
     return quotes
 
 if __name__ == '__main__':
-    quotes = get_quotes_data()
-    quotes = clean_data(quotes)
-    print(quotes.info())
+    quotes_clean = clean_data()

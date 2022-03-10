@@ -1,27 +1,22 @@
 import numpy as np
-import pandas as pd
-from numpy import array
-import matplotlib.image as mpimg
-import string
-import os
-import glob
 from PIL import Image
-
-from keras import Input, layers
-from keras import optimizers
-from tensorflow.keras.optimizers import Adam
-from keras.preprocessing import sequence
-from keras.preprocessing import image
-from keras.preprocessing.text import Tokenizer
+import os
+import string
+from pickle import dump
+from pickle import load
+from keras.applications.xception import Xception #to get pre-trained model Xception
+from keras.applications.xception import preprocess_input
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing.text import Tokenizer #for text tokenization
 from keras.preprocessing.sequence import pad_sequences
-from keras.layers import LSTM, Embedding, Dense, Activation, Flatten, Reshape, Dropout
-from keras.layers.wrappers import Bidirectional
+from keras.utils import to_categorical
 from keras.layers.merge import add
-from keras.applications.inception_v3 import InceptionV3
-from keras.applications.inception_v3 import preprocess_input
-from keras.models import Model
-from tensorflow.keras.utils import to_categorical
-import joblib
+from keras.models import Model, load_model
+from keras.layers import Input, Dense#Keras to build our CNN and LSTM
+from keras.layers import LSTM, Embedding, Dropout
+from tqdm import tqdm_notebook as tqdm #to check loop progress
+tqdm().pandas()
 from google.cloud import storage
 ### GCP configuration - - - - - - - - - - - - - - - - - - -
 
@@ -77,7 +72,76 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
 
-def preco_voc(df_im_0, glove):
+def load_fp(filename):
+    # Open file to read
+    file = open(filename, 'r')
+    text = file.read()
+    file.close()
+    return text
+# get all images with their captions
+def img_capt(filename):
+    file = load_doc(filename)
+    captions = file.split('n')
+    descriptions ={}
+    for caption in captions[:-1]:
+        img, caption = caption.split('t')
+    if img[:-2] not in descriptions:
+            descriptions[img[:-2]] = [ caption ]
+    else:
+            descriptions[img[:-2]].append(caption)
+    return descriptions
+#Data cleaning function will convert all upper case alphabets to lowercase, removing punctuations and words containing numbers
+def txt_clean(captions):
+    table = str.maketrans('','',string.punctuation)
+    for img,caps in captions.items():
+        for i,img_caption in enumerate(caps):
+                img_caption.replace("-"," ")
+                descp = img_caption.split()
+                #uppercase to lowercase
+                descp = [wrd.lower() for wrd in descp]
+                #remove punctuation from each token
+                descp = [wrd.translate(table) for wrd in descp]
+                #remove hanging 's and a
+                descp = [wrd for wrd in descp if(len(wrd)>1)]
+                #remove words containing numbers with them
+                descp = [wrd for wrd in descp if(wrd.isalpha())]
+                #converting back to string
+                img_caption = ' '.join(desc)
+                captions[img][i]= img_caption
+    return captions
+def txt_vocab(descriptions):
+    # To build vocab of all unique words
+    vocab = set()
+    for key in descriptions.keys():
+        [vocab.update(d.split()) for d in descriptions[key]]
+    return vocab
+#To save all descriptions in one file
+def save_descriptions(descriptions, filename):
+   lines = list()
+    for key, desc_list in descriptions.items():
+        for desc in desc_list:
+                lines.append(key + 't' + desc )
+    data = "n".join(lines)
+    file = open(filename,"w")
+    file.write(data)
+    file.close()
+# Set these path according to project folder in you system, like i create a folder with my name shikha inside D-drive
+dataset_text = "D:shikhaProject - Image Caption GeneratorFlickr_8k_text"
+dataset_images = "D:shikhaProject - Image Caption GeneratorFlicker8k_Dataset"
+#to prepare our text data
+filename = dataset_text + "/" + "Flickr8k.token.txt"
+#loading the file that contains all data
+#map them into descriptions dictionary 
+descriptions = img_capt(filename)
+print("Length of descriptions =" ,len(descriptions))
+#cleaning the descriptions
+clean_descriptions = txt_clean(descriptions)
+#to build vocabulary
+vocabulary = txt_vocab(clean_descriptions)
+print("Length of vocabulary = ", len(vocabulary))
+#saving all descriptions in one file
+save_descriptions(clean_descriptions, "descriptions.txt")
+ def preco_voc(df_im_0, glove):
     train = list(df_im_0['image_name'].map(str))
     descriptions = df_im_0.groupby('image_name')['comments'].apply(list).to_dict()
     table = str.maketrans('', '', string.punctuation)
