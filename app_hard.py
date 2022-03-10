@@ -38,14 +38,18 @@ with st.expander("See more about the Quotes for your Posts"):
 st.sidebar.markdown("# Control Panel")
 st.sidebar.markdown("""---""")
 
-SIDEBAR_OPTION_DEMO_IMAGE = "Select a Demo Image"
-SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image"
-SIDEBAR_OPTION_JUST_TAGS="Just using tags"
+SIDEBAR_OPTION_DEMO_IMAGE = "Select a Demo Image 💻 "
+SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image 📷"
+SIDEBAR_OPTION_JUST_TAGS="Just using tags ✏️"
 SIDEBAR_OPTION_TEAM="More about our team 💼"
 
 DEMO_PHOTO_SIDEBAR_OPTIONS=["None","Cat","Dance","Galaxy","Paris"]
 SIDEBAR_OPTIONS = [ SIDEBAR_OPTION_DEMO_IMAGE, SIDEBAR_OPTION_UPLOAD_IMAGE,SIDEBAR_OPTION_JUST_TAGS,SIDEBAR_OPTION_TEAM]
 app_mode = st.sidebar.selectbox("Please select from the modes", SIDEBAR_OPTIONS)
+
+##############
+# Hardcoded  #
+##############
 
 cat_q=["What greater gift than the love of a cat.Charles Dickens",
 "I felt like an animal, and animals don’t know sin, do they? Jess C. Scott, Wicked Lovely",
@@ -74,6 +78,8 @@ sky_q=["When you do your works sincerely, you put wings to your works and then t
 "We are earthbound creatures, Maggie had thought. No matter how tempting the sky. No matter how beautiful the stars. No matter how deep the dream of flight. We are creatures of the earth. Born with legs, not wings, legs that root us to the earth, and hands that allow us to build our homes, hands that bind us to our loved ones within those homes. The glamour, the adrenaline rush, the true adventure, is here, within these homes. The wars, the detente, the coups, the peace treaties, the celebrations, the mournings, the hunger, the sating, all here. Thrity Umrigar"]
 
 sky_q_topics=[ "Children of the same family, the same blood, with the same first associations and habits, have some means of enjoyment in their power, which no subsequent connections can supply. Jane Austen, Mansfield Park"]
+
+cat_q_topics=["Babies have the power to make grumpy people happy because they love you no matter what. Dogs are that way, too.Mariel Hemingway, Invisible Girl"]
 
 just_q=["Life is war, war is game so life is game. Either lose or win. Know it earlier. Oladosu feyikogbon"]
 
@@ -143,6 +149,7 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
             st.image(image, caption='Cat is playing')
             cal_b=st.sidebar.button('Show me the suitable quotes',key="paris")
             if cal_b:
+                st.session_state.load_topics_cat = True
                 with st.spinner('Wait for it...'):
                     time.sleep(3)
                     st.success('Your Quotes are ready')
@@ -150,6 +157,8 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
 
                         for count,ele in enumerate(cat_q,1):
                           st.write(count,ele)
+                    st.markdown("""---""")
+                st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
 
         if photo_select=="Dance":
@@ -259,9 +268,9 @@ else:
     pass
 
 
-#####################
-#  Not Saticfaction #
-#####################
+################################
+#  Not Saticfaction for upload #
+################################
 # Making sure topics section is True + mode is upload
 if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
     st.sidebar.markdown("""---""")
@@ -294,7 +303,31 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
 
 
 
-
+##################################
+#  Not Saticfaction for demo-cat #
+##################################
+# Making sure topics section is True + mode is upload
+if 'load_topics_cat' in st.session_state and app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
+    st.sidebar.markdown("""---""")
+    st.sidebar.write("- Give us your tags and submit!")
+    with st.sidebar.form(key="topics", clear_on_submit=True):
+        t1=st.text_input("Tag 1")
+        t2=st.text_input("Tag 2")
+        t3=st.text_input("Tag 3")
+        t4=st.text_input("Tag 4")
+        t5=st.text_input("Tag 5")
+        submitted = st.form_submit_button("Submit Topics & Run!")
+    if submitted:
+        st.sidebar.write("Your Tags:",t1,t2,t3,t4,t5)
+        #Topic list for model
+        added_topics=[t1,t2,t3,t4,t5]
+        #st.write(added_topics)
+        with st.spinner('Wait for it...'):
+                        time.sleep(4)
+                        st.success('Your Quotes are ready!')
+                        with st.container():
+                            for count,ele in enumerate(cat_q_topics,1):
+                                st.write(count,ele)
 
 # st.session_state.input=True
 # if st.session_state.topic==True :
