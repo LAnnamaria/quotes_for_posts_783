@@ -5,11 +5,10 @@ import streamlit.components.v1 as components
 from PIL import Image
 import time
 import os
-import datetime
 import requests
-from textwrap3 import wrap
-import pyperclip as pc
 import ipdb
+
+
 
 st.session_state.wrapped_quotes = {}
 
@@ -82,12 +81,9 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                columns = st.columns([0.01,1.5])
-                                st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
-                                columns[0].markdown(count)
-                                columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
-                                if st.button(f"Copy quote {count} to clipboard"):
-                                    pc.copy(st.session_state.wrapped_quotes[count])
+                                st.write(count,ele)
+
+
 
 
 
@@ -142,20 +138,9 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                     time.sleep(3)
                     st.success('Your Quotes are ready')
                     with st.container():
-
                         for count,ele in enumerate(quotes_demo,1):
-                            columns = st.columns([0.01,1.5])
-                            st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
-                            columns[0].markdown(count)
-                            ipdb.set_trace()
-                            columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
-                            if st.button(f"Copy quote {count} to clipboard"):
-                                pc.copy(st.session_state.wrapped_quotes[count])
+                            st.write(count,ele)
 
-                            # if st.button(f"Copy quote {count} to clipboard"):
-                            #     pc.copy(st.session_state.wrapped_quote)
-                            #columns[1].code(f'"{st.session_state.wrapped_quote}"')
-                            #columns[1].code(str("\n".join(wrap(f'"{ele}"',width=80))))
 
 
         else:
@@ -191,13 +176,7 @@ if app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
                 st.success('Your Quotes are ready!')
                 with st.container():
                     for count,ele in enumerate(quotes_demo,1):
-                        columns = st.columns([0.01,1.5])
-                        wrapped_quote = {count:"\n".join(wrap(ele,width=80))}
-                        columns[0].markdown(count)
-                        columns[1].markdown(f'"{wrapped_quote}"')
-
-                        if st.button(f"Copy quote {count} to clipboard"):
-                            pc.copy(wrapped_quote[count])
+                        st.write(count,ele)
 
 
                 st.markdown("""---""")
@@ -232,13 +211,19 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
                         st.success('Your Quotes are ready!')
                         with st.container():
                             for count,ele in enumerate(quotes_demo,1):
-                                columns = st.columns([0.01,1.5])
-                                wrapped_quote = {count:"\n".join(wrap(ele,width=80))}
-                                columns[0].markdown(count)
-                                columns[1].markdown(f'"{wrapped_quote}"')
-                                if st.button(f"Copy quote {count} to clipboard"):
-                                    pc.copy(wrapped_quote[count])
+                                st.write(count,ele)
 
+
+
+
+
+##############
+# API        #
+##############
+
+# url="API url"
+# input_image=image
+# added_topics
 
 
 
