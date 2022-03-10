@@ -157,6 +157,8 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
 
                         for count,ele in enumerate(cat_q,1):
                           st.write(count,ele)
+                    st.markdown("""---""")
+                st.markdown("##### 👈 If the sentiment of the picture is different than the Top 5 quotes and you would like to define it by yourself, please give us some tags and submit! 🧐")
 
 
         if photo_select=="Dance":
