@@ -40,13 +40,12 @@ def upload_model_to_gcp_3():
 
 
 class QuotesTrainer():
-    def __init__(self, quotes,image_caption):
+    def __init__(self, quotes):
         """
             quotes is a dataframe with the image_caption already incorporated at index -1
 
         """
-        self.vectorizer = TfidfVectorizer(max_df=0.75, min_df=0.1, stop_words="english",ngram_range=(1,2),norm='l1')
-        self.image_caption = image_caption
+        self.vectorizer = None
         self.quotes = quotes
         self.image_topic = None
         self.own_tags = None
@@ -61,12 +60,14 @@ class QuotesTrainer():
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")'''
 
     def run(self):
-        """set and train the pipeline"""
+        """set and train the pipeline """
+
         lda_model = LatentDirichletAllocation(learning_decay=1, n_components=5)
+        self.vectorizer = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         trained = topic_pipeline
         trained_topics = trained.fit_transform(self.quotes.list_tags)
-        print(trained_topics[1])
+        print(trained_topics[0])
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
@@ -114,7 +115,7 @@ if __name__ == "__main__":
     image_caption = 'It will be added from Mohana´s'
     quotes = qd.clean_data()
     quotes = u.image_cap_to_quotes(quotes,image_caption)
-    trainer = QuotesTrainer(quotes,image_caption)
+    trainer = QuotesTrainer(quotes)
     quotess = trainer.run()
     print(trainer.top5(quotess))
     #trainer.most_suitable(image_caption)
