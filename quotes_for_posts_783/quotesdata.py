@@ -1,3 +1,4 @@
+from urllib.parse import quote_plus
 import pandas as pd
 import string
 import os
@@ -36,6 +37,7 @@ def remove_punctuations(text):
 def clean_data(test=False):
 
     quotes =  pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}')
+   # quotes = quotes.head(10000)
     '''setting everything to lowercase, replacing - with , and deleting duplicate tags in category
     (creating list_tags for further use) and adding an extra column called count_tags. Returning the quotes dataframe'''
     for index, row in quotes.iterrows():
