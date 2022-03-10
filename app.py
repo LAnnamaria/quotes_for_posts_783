@@ -147,7 +147,7 @@ if app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
                             columns = st.columns([0.01,1.5])
                             st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
                             columns[0].markdown(count)
-                            ipdb.set_trace()
+                            #ipdb.set_trace()
                             columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
                             if st.button(f"Copy quote {count} to clipboard"):
                                 pc.copy(st.session_state.wrapped_quotes[count])
@@ -282,3 +282,16 @@ if 'load_topics' in st.session_state and app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE
 #         # t4=st.sidebar.text_input("Topic 4")
 #         # t5=st.sidebar.text_input("Topic 5")
 #     st.markdown(t1)
+
+#EXAMPLE FROM CHALLENGE
+
+# #'''parameters = {"pickup_datetime": pickup_datetime,
+#         "pickup_longitude": pickup_longitude,
+#         "pickup_latitude": pickup_latitude,
+#         "dropoff_longitude": dropoff_longitude,
+#         "dropoff_latitude": dropoff_latitude,
+#         "passenger_count": passenger_count}
+
+# #if st.button('Predict fare'):
+#      st.write(requests.get(url, params=parameters).json())
+#      #st.write(requests.get(url, params=parameters).url)'''
