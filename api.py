@@ -28,7 +28,7 @@ app.add_middleware(
 def index():
     return {"greeting": "Quotes for your posts! Get fitting quotes for your picture with one click!"}
 
-@app.get("/top5")
+@app.get("/top5/")
 def top5():
     q = GetData()
     cap_tr = ImageCaption()
@@ -38,11 +38,11 @@ def top5():
     quotess = trainer.run()
     top5 = trainer.top5_fuc(quotess)
     #most_suitable_quote = trainer.most_suitable(quotess,tags)
-    return {'top5' : list(top5) }
+    return {'top5' : top5 }
 
-@app.get("/final")
+@app.get("/final/")
 def most_suitable(tags):
-    tags = """here comes the input from the user"""
+    tags = tags
     q = GetData()
     cap_tr = ImageCaption()
     cap = cap_tr.nlp()
@@ -50,19 +50,8 @@ def most_suitable(tags):
     trainer = GetQuote(quotes)
     quotess = trainer.run()
     most_suitable_quote = trainer.most_suitable(quotess,tags)
-    return most_suitable_quote
+    return {'most_suitable' : most_suitable_quote }
 
-
-    # localized_pickup_datetime = pytz.timezone("US/Eastern").localize(datetime.strptime(pickup_datetime, "%Y-%m-%d %H:%M:%S"), is_dst=None).astimezone(pytz.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    # params = {"key":[pickup_datetime],\
-    #     "pickup_datetime": [localized_pickup_datetime],\
-    #     "pickup_longitude": [float(pickup_longitude)],\
-    #     "pickup_latitude": [float(pickup_latitude)],\
-    #     "dropoff_longitude": [float(dropoff_longitude)],\
-    #     "dropoff_latitude": [float(dropoff_latitude)],\
-    #     "passenger_count": [int(passenger_count)]}
-
-    # X_pred = pd.DataFrame(data = params)
-    # pipeline = joblib.load(PATH_TO_LOCAL_MODEL)
-    # y_pred = pipeline.predict(X_pred)
-    # return {"fare": y_pred[0]}
+@app.get("/trial/")
+def trial():
+    return {'trial': 'just trying'}
