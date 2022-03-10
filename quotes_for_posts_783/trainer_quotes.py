@@ -37,6 +37,16 @@ def upload_model_to_gcp_3():
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob(STORAGE_LOCATION_3)
     blob.upload_from_filename('nn_euc.joblib')
+def upload_vectorizertop5_to_gcp_2():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_3)
+    blob.upload_from_filename('vectorizer_top5.joblib')
+def upload_vectorizerms_to_gcp_3():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_3)
+    blob.upload_from_filename('vectorizer_ms.joblib')
 
 
 class QuotesTrainer():
@@ -66,11 +76,12 @@ class QuotesTrainer():
         self.vectorizer = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         trained = topic_pipeline
-        trained_topics = trained.fit_transform(self.quotes.list_tags)
-        print(trained_topics[0])
+        trained_topics = trained.fit(self.quotes.list_tags)
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
+        trained_topics = trained.transform(self.quotes.list_tags)
+        print(trained_topics[0])
         for index,row in self.quotes.iterrows():
             self.quotes['topic'] = self.quotes.quote.copy()
         for index,row in self.quotes.iterrows():
@@ -80,9 +91,12 @@ class QuotesTrainer():
     def top5(self, quotes):
         self.quotes = quotes
         """evaluates the pipeline on df_test and return the RMSE"""
+        vectorizer_top5 = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         self.image_topic = int(self.quotes.iloc[-1, [-1]])
         only_topic = self.quotes[self.quotes.topic == self.image_topic]
-        tfidf_weight = self.vectorizer.fit_transform(only_topic['list_tags'].values.astype('U'))
+        tfidf_weight = vectorizer_top5.fit_transform(only_topic['list_tags'].values.astype('U'))
+        joblib.dump(vectorizer_top5,'vectorizer_top5.joblib')
+        upload_vectorizertop5_to_gcp_2()
         nn_min = NearestNeighbors(metric = 'minkowski')
         nn_min.fit(tfidf_weight)
         joblib.dump(nn_min,'nn_min.joblib')
@@ -98,7 +112,10 @@ class QuotesTrainer():
         print(quotes.topic)
         most_suiting = quotes.loc[quotes.topic != self.image_topic]
         most_suiting.iloc[-1] = [own_tags,'image','image',own_tags,'1',self.image_topic]
-        tfidf_weight = self.vectorizer.fit_transform(most_suiting['list_tags'].values.astype('U'))
+        vectorizer_ms = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
+        tfidf_weight = vectorizer_ms.fit_transform(most_suiting['list_tags'].values.astype('U'))
+        joblib.dump(vectorizer_ms,'vectorizer_ms.joblib')
+        upload_vectorizerms_to_gcp_3()
         nn_euc = NearestNeighbors(metric = 'euclidean')
         nn_euc.fit(tfidf_weight)
         joblib.dump(nn_euc,'nn_euc.joblib')

@@ -185,6 +185,7 @@ def LoadDataAndDoEssentials(df_im_0,model_new):
         imagePath = f'{BUCKET_TRAIN_DATA_PATH}/{i}.jpg'
         download_blob(BUCKET_NAME, imagePath, 'temp.jpg')
         img = image.load_img('temp.jpg', target_size=(299, 299))
+        print(img)
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
