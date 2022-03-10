@@ -66,6 +66,7 @@ class QuotesTrainer():
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         trained = topic_pipeline
         trained_topics = trained.fit_transform(self.quotes.list_tags)
+        print(trained_topics[1])
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
