@@ -7,7 +7,7 @@ import time
 import os
 import datetime
 import requests
-import ipdb
+#import ipdb
 
 st.session_state.wrapped_quotes = {}
 

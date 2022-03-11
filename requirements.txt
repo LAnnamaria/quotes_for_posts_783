@@ -38,3 +38,5 @@ pillow
 tqdm
 rake-nltk
 streamlit
+PIL
+tkinter
