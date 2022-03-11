@@ -122,7 +122,7 @@ pypi:
 # ----------------------------------
 
 streamlit:
-	-@streamlit run app.py
+	-@streamlit run app_hard.py
 
 heroku_login:
 	-@heroku login

@@ -11,7 +11,6 @@ class ImageGroup():
         self.model = loaded_model
         self.path = path
     def image_class(self):
-        path = os.getcwd()
         im = mpimg.imread(f"{self.path}/tempDir")
         im = cv2.resize(im, (224, 224))
         ## Expanding image dims so this represents 1 sample

@@ -34,8 +34,8 @@ class ImageCaption():
         self.df3 = pd.read_csv(f"{path}/raw_data/df_images_3.csv")
         self.df4 = pd.read_csv(f"{path}/raw_data/df_images_4.csv")
     def get_params(self,df):
-        df['image_name'] = df['image_name'].map(str)
-        train = list(df['image_name'])
+        #df['image_name'] = df['image_name'].map(str)
+        train = list(df['image_name'].map(str))
         descriptions = df.groupby('image_name')['comments'].apply(list).to_dict()
         table = str.maketrans('', '', string.punctuation)
         for key, desc_list in descriptions.items():
@@ -98,7 +98,7 @@ class ImageCaption():
         in_text = 'startseq'
         for i in range(max_length):
             sequence = [wordtoix[w] for w in in_text.split() if w in wordtoix]
-            sequence = pad_sequences([sequence], maxlen=self.max_length)
+            sequence = pad_sequences([sequence], maxlen=max_length)
             yhat = model.predict([photo,sequence], verbose=0)
             yhat = np.argmax(yhat)
             word = ixtoword[yhat]
