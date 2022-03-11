@@ -36,3 +36,4 @@ opencv-python
 matplotlib
 pillow
 tqdm
+rake-nltk

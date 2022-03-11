@@ -42,7 +42,6 @@ def top5():
 
 @app.get("/final/")
 def most_suitable(tags):
-    tags = tags
     q = GetData()
     cap_tr = ImageCaption()
     cap = cap_tr.nlp()
