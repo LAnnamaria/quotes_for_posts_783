@@ -28,7 +28,7 @@ app.add_middleware(
 def index():
     return {"greeting": "Quotes for your posts! Get fitting quotes for your picture with one click!"}
 
-@app.get("/top5/")
+@app.get("/top5")
 def top5():
     q = GetData()
     cap_tr = ImageCaption()
@@ -40,15 +40,16 @@ def top5():
     #most_suitable_quote = trainer.most_suitable(quotess,tags)
     return {'top5' : top5 }
 
-@app.get("/final/")
-def most_suitable(tags):
+@app.get("/final")
+def most_suitable(added_topics):
+    params = { 'added_topics' : [str(added_topics)]}
     q = GetData()
     cap_tr = ImageCaption()
     cap = cap_tr.nlp()
     quotes = q.clean_data(cap)
     trainer = GetQuote(quotes)
     quotess = trainer.run()
-    most_suitable_quote = trainer.most_suitable(quotess,tags)
+    most_suitable_quote = trainer.most_suitable(quotess,params['added_topics'])
     return {'most_suitable' : most_suitable_quote }
 
 @app.get("/trial/")

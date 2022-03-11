@@ -52,15 +52,15 @@ def set_pipline(quotes):
 
 class GetQuote():
     def __init__(self,quotes):
-        loaded_model1 = joblib.load('top5.joblib')
+        loaded_model1 = joblib.load('quotes_for_posts_783_top5.joblib')
         self.top5 = loaded_model1
-        loaded_vec_top5 = joblib.load('vectorizer_top5.joblib')
+        loaded_vec_top5 = joblib.load('quotes_for_posts_783_vectorizer_top5.joblib')
         self.vec_top5 = loaded_vec_top5
-        loaded_vec_ms = joblib.load('vecotrizer_ms.joblib')
+        loaded_vec_ms = joblib.load('quotes_for_posts_783_vectorizer_ms.joblib')
         self.vec_ms = loaded_vec_ms
-        loaded_model2 = joblib.load('nn_min.joblib')
+        loaded_model2 = joblib.load('quotes_for_posts_783_nn_min.joblib')
         self.nn_min = loaded_model2
-        loaded_model3 = joblib.load('nn_euc.joblib')
+        loaded_model3 = joblib.load('quotes_for_posts_783_nn_euc.joblib')
         self.nn_euc = loaded_model3
         self.quotes = quotes
         self.image_topic = None

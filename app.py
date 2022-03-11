@@ -11,6 +11,8 @@ from textwrap3 import wrap
 import pyperclip as pc
 import ipdb
 
+url = '''please pass the url'''
+
 st.session_state.wrapped_quotes = {}
 
 st.markdown(f'<h1 style="color:#FFFFFF;font-size:60px;">{"Quotes For Posts"}</h1>', unsafe_allow_html=True)
@@ -58,6 +60,7 @@ quotes_demo=[
 ]
 
 
+
 ##############
 # Just Tags  #
 ##############
@@ -75,19 +78,19 @@ if app_mode == SIDEBAR_OPTION_JUST_TAGS:
     if submitted:
         st.sidebar.write("Your Tags:",t1,t2,t3,t4,t5)
         #Topic list for model
-        added_topics=[t1,t2,t3,t4,t5]
+        params = {'added_topics':[t1,t2,t3,t4,t5]}
         #st.write(added_topics)
         with st.spinner('Wait for it...'):
                         time.sleep(3)
                         st.success('Your Quotes are ready!')
                         with st.container():
-                            for count,ele in enumerate(quotes_demo,1):
+                            for count,ele in enumerate(st.write(requests.get(f"{url}/final", params=params).json())),1):
                                 columns = st.columns([0.01,1.5])
                                 st.session_state.wrapped_quotes[count] = "\n".join(wrap(ele,width=80))
                                 columns[0].markdown(count)
                                 columns[1].markdown(f'"{st.session_state.wrapped_quotes[count]}"')
-                                if st.button(f"Copy quote {count} to clipboard"):
-                                    pc.copy(st.session_state.wrapped_quotes[count])
+                                #if st.button(f"Copy quote {count} to clipboard"):
+                                    #pc.copy(st.session_state.wrapped_quotes[count])
 
 
 
