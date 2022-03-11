@@ -20,7 +20,8 @@ BUCKET_NAME = 'quotes_for_posts_783'
 STORAGE_LOCATION_1 = 'quotes_for_posts_783/top5.joblib'
 STORAGE_LOCATION_2 = 'quotes_for_posts_783/nn_min.joblib'
 STORAGE_LOCATION_3 = 'quotes_for_posts_783/nn_euc.joblib'
-
+STORAGE_LOCATION_4 = 'quotes_for_posts_783/vectorizer_top5.joblib'
+STORAGE_LOCATION_5 = 'quotes_for_posts_783/vectorizer_ms.joblib'
 
 def upload_model_to_gcp_1():
     client = storage.Client()
@@ -40,12 +41,12 @@ def upload_model_to_gcp_3():
 def upload_vectorizertop5_to_gcp_2():
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
-    blob = bucket.blob(STORAGE_LOCATION_3)
+    blob = bucket.blob(STORAGE_LOCATION_4)
     blob.upload_from_filename('vectorizer_top5.joblib')
 def upload_vectorizerms_to_gcp_3():
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
-    blob = bucket.blob(STORAGE_LOCATION_3)
+    blob = bucket.blob(STORAGE_LOCATION_5)
     blob.upload_from_filename('vectorizer_ms.joblib')
 
 
@@ -79,9 +80,8 @@ class QuotesTrainer():
         trained_topics = trained.fit(self.quotes.list_tags)
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
-        print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
+        #print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
         trained_topics = trained.transform(self.quotes.list_tags)
-        print(trained_topics[0])
         for index,row in self.quotes.iterrows():
             self.quotes['topic'] = self.quotes.quote.copy()
         for index,row in self.quotes.iterrows():
@@ -97,11 +97,12 @@ class QuotesTrainer():
         tfidf_weight = vectorizer_top5.fit_transform(only_topic['list_tags'].values.astype('U'))
         joblib.dump(vectorizer_top5,'vectorizer_top5.joblib')
         upload_vectorizertop5_to_gcp_2()
+        #print(f"uploaded vectorizer_top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_4}")
         nn_min = NearestNeighbors(metric = 'minkowski')
         nn_min.fit(tfidf_weight)
         joblib.dump(nn_min,'nn_min.joblib')
         upload_model_to_gcp_2()
-        print(f"uploaded nn_min.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_2}")
+        #print(f"uploaded nn_min.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_2}")
         image_index = -1
         min, indices = nn_min.kneighbors(tfidf_weight[image_index], n_neighbors = 100)
         neighbors_min = pd.DataFrame({'min': min.flatten(), 'id': indices.flatten()})
@@ -109,18 +110,18 @@ class QuotesTrainer():
         return top5
 
     def most_suitable(self,quotes , own_tags):
-        print(quotes.topic)
         most_suiting = quotes.loc[quotes.topic != self.image_topic]
         most_suiting.iloc[-1] = [own_tags,'image','image',own_tags,'1',self.image_topic]
         vectorizer_ms = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         tfidf_weight = vectorizer_ms.fit_transform(most_suiting['list_tags'].values.astype('U'))
         joblib.dump(vectorizer_ms,'vectorizer_ms.joblib')
         upload_vectorizerms_to_gcp_3()
+        #print(f"uploaded vectorizer_ms.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_5}")
         nn_euc = NearestNeighbors(metric = 'euclidean')
         nn_euc.fit(tfidf_weight)
         joblib.dump(nn_euc,'nn_euc.joblib')
         upload_model_to_gcp_3()
-        print(f"uploaded nn_euc.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_3}")
+        #print(f"uploaded nn_euc.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_3}")
         image_index = -1
         euc, indices = nn_euc.kneighbors(tfidf_weight[image_index], n_neighbors = 100)
         neighbors_euc = pd.DataFrame({'euc': euc.flatten(), 'id': indices.flatten()})
@@ -134,9 +135,9 @@ if __name__ == "__main__":
     quotes = u.image_cap_to_quotes(quotes,image_caption)
     trainer = QuotesTrainer(quotes)
     quotess = trainer.run()
-    print(trainer.top5(quotess))
+    trainer.top5(quotess)
     #trainer.most_suitable(image_caption)
-    print(trainer.most_suitable(quotess,image_caption))
+    trainer.most_suitable(quotess,image_caption)
 
    # satisfied = input('Are you satisfied with any of these quotes? Y/N')
     #if satisfied == 'Y':

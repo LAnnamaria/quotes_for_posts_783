@@ -65,7 +65,6 @@ def get_data():
     """method to get the training data (or a portion of it) from google cloud bucket"""
     df_im_0 = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
     df_im_0 = df_im_0.head(10)
-    print(df_im_0)
     download_blob(BUCKET_NAME, glove_path, 'temp.txt')
     glove = open('temp.txt', encoding="utf-8")
     return df_im_0, glove
@@ -185,50 +184,67 @@ def LoadDataAndDoEssentials(df_im_0,model_new):
         imagePath = f'{BUCKET_TRAIN_DATA_PATH}/{i}.jpg'
         download_blob(BUCKET_NAME, imagePath, 'temp.jpg')
         img = image.load_img('temp.jpg', target_size=(299, 299))
-        print(img)
         x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
-        fea_vec = model_new.predict(img) 
-        fea_vec = np.reshape(fea_vec, fea_vec.shape[1])
-        img = img.reshape((1,2048))
+        x_ex = np.expand_dims(x, axis=0)
+        x_proc = preprocess_input(x_ex)
+        fea_vec = model_new.predict(x_proc) 
+        #fea_vec_ = np.reshape(fea_vec, fea_vec.shape[1])
+        #img_new = fea_vec_.reshape((1,2048))
  
-    return img
+    return fea_vec
 
-def data_generator(descriptions, photos, wordtoix, max_length, num_photos_per_batch):
+def data_generator(descriptions, features, wordtoix, max_length,  num_photos_per_batch):
     X1, X2, y = list(), list(), list()
-    n=0
-    print(type(descriptions))
+    n = 0
     # loop for ever over images
     while 1:
-        for key, desc_list in descriptions.items():
-            key = int(key)
-            n+=1
-            # retrieve the photo feature
-            #photo = photos
-            for i in range(len(photos)):
-                X1.append(f"{photos[0][i]}.jpg")
-
-            for desc in desc_list:
+        for key, description_list in descriptions.items():
+            n +=1
+            key_1 = float(key)
+            #retrieve photo features
+            feature = [features, key_1]
+            for desc in description_list:
                 # encode the sequence
                 seq = [wordtoix[word] for word in desc.split(' ') if word in wordtoix]
+                '''all_desc = []
+                    for key in descriptions.keys():
+                        [all_desc.append(d) for d in descriptions[key]]
+                                    desc_list = dict_to_list(descriptions)
+                                    tokenizer = Tokenizer()
+                                    tokenizer.fit_on_texts(desc_list)
+                                    # divide one sequence into various X,y pairs
+                                    seq = tokenizer.texts_to_sequences([desc])[0]'''
+                
                 # split one sequence into multiple X, y pairs
                 for i in range(1, len(seq)):
                     # split into input and output pair
                     in_seq, out_seq = seq[:i], seq[i]
                     # pad input sequence
-                    in_seq = pad_sequences([in_seq], maxlen=max_length)[0]
+                    in_seq = pad_sequences([in_seq], maxlen=max_length, padding="post")[0]
                     # encode output sequence
                     out_seq = to_categorical([out_seq], num_classes=vocab_size)[0]
                     # store
+                    X1.append(feature)
                     X2.append(in_seq)
                     y.append(out_seq)
 
+                    X_1 = array(X1).astype('float32')
+                    X_2 = np.narray(X2).astype('float32')
+                    y_ = X_1 =np.narray(y).astype('float32')
+           # import ipdb; ipdb.set_trace()
             if n==num_photos_per_batch:
-                yield ([array(X1), array(X2)], array(y))
+                yield [[X_1, array(X2)], array(y)]
                 X1, X2, y = list(), list(), list()
                 n=0
-    return np.array(X_1), np.array(X_2), np.array(y)
+                '''
+                X_1 = np.narray(X1).astype('float32')
+                X_2 = np.narray(X2).astype('float32')
+                y_ = X_1 =np.narray(y).astype('float32')
+                yield [[X_1, X_2], y]
+                '''
+                
+                
+          
 
 STORAGE_LOCATION = 'quotes_for_posts_783/images_caption_model_1.joblib'
 
@@ -257,7 +273,7 @@ if __name__ == '__main__':
     max_length, vocab_size, embedding_matrix, train_descriptions, max_length, wordtoix = preco_voc(df_im_0, glove)
     # preprocess data
 
-    epochs = 10
+    epochs = 2
     batch_size = 3
     steps = len(train_descriptions)//batch_size
     model = model_training(max_length, vocab_size)
@@ -266,8 +282,19 @@ if __name__ == '__main__':
     # or on GCP if it was called through the gcp_submit_training, in which case
     # this package is uploaded to GCP before being executed)
     train_features = LoadDataAndDoEssentials(df_im_0,model_new)
-    generator = data_generator(train_descriptions, train_features, wordtoix, max_length, batch_size)
+    print(train_features)
+    generator = data_generator(train_descriptions, train_features[0], wordtoix, max_length, batch_size)
     model.fit(generator, epochs=epochs, steps_per_epoch=steps, verbose=1)
 
     # save trained model to GCP bucket (whether the training occured locally or on GCP)
     save_model(model)
+
+
+'''if n==num_photos_per_batch:
+                yield ([array(X1), array(X2)], array(y))
+                X1, X2, y = list(), list(), list()
+                n=0'''
+
+''' for desc in desc_list:
+    # encode the sequence
+    seq = [wordtoix[word] for word in desc.split(' ') if word in wordtoix]'''
