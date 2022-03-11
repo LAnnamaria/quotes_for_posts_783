@@ -202,7 +202,8 @@ def data_generator(descriptions, features, wordtoix, max_length,  num_photos_per
             n +=1
             key_1 = float(key)
             #retrieve photo features
-            feature = [features, key_1]
+            feature = [key_1, features]
+            feature_1 = map(float, feature)
             for desc in description_list:
                 # encode the sequence
                 seq = [wordtoix[word] for word in desc.split(' ') if word in wordtoix]
@@ -224,16 +225,15 @@ def data_generator(descriptions, features, wordtoix, max_length,  num_photos_per
                     # encode output sequence
                     out_seq = to_categorical([out_seq], num_classes=vocab_size)[0]
                     # store
-                    X1.append(feature)
+                    X1.append(feature_1)
                     X2.append(in_seq)
                     y.append(out_seq)
 
-                    X_1 = array(X1).astype('float32')
-                    X_2 = np.narray(X2).astype('float32')
-                    y_ = X_1 =np.narray(y).astype('float32')
-           # import ipdb; ipdb.set_trace()
+                    X_1 = np.narray(X1)
+                    X_2 = map(float, X2)
+            #import ipdb; ipdb.set_trace()
             if n==num_photos_per_batch:
-                yield [[X_1, array(X2)], array(y)]
+                yield [[X_1, array(X_2)], array(y)]
                 X1, X2, y = list(), list(), list()
                 n=0
                 '''
