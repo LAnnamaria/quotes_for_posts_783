@@ -31,9 +31,9 @@ six>=1.14
 joblib
 memoized-property
 termcolor
-tensorflow
+#tensorflow
 opencv-python
-matplotlib
+#matplotlib
 pillow
 tqdm
 rake-nltk
