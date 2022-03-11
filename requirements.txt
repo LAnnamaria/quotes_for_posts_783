@@ -39,4 +39,4 @@ tqdm
 rake-nltk
 streamlit
 #PIL
-python-tk
+#python-tk
