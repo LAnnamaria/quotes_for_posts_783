@@ -14,6 +14,7 @@ PATH_TO_LOCAL_TOP5_MODEL = 'top5.joblib'
 PATH_TO_LOCAL_NN_MIN_MODEL = 'nn_min.joblib'
 PATH_TO_LOCAL_NN_EUC_MODEL = 'nn_euc.joblib'
 
+added_topics = "dog, cat, friends, animals"
 app = FastAPI()
 
 app.add_middleware(
@@ -31,12 +32,13 @@ def index():
 @app.get("/top5")
 def top5():
     q = GetData()
-    cap_tr = ImageCaption()
-    cap = cap_tr.nlp()
+    # cap_tr = ImageCaption()
+    # cap = cap_tr.nlp()
+    cap = 'checking if it works'
     quotes = q.clean_data(cap)
     trainer = GetQuote(quotes)
     quotess = trainer.run()
-    top5 = trainer.top5_fuc(quotess)
+    top5 = trainer.top5_fuc()
     #most_suitable_quote = trainer.most_suitable(quotess,tags)
     return {'top5' : top5 }
 
@@ -44,8 +46,8 @@ def top5():
 def most_suitable(added_topics):
     params = { 'added_topics' : [str(added_topics)]}
     q = GetData()
-    cap_tr = ImageCaption()
-    cap = cap_tr.nlp()
+    # cap_tr = ImageCaption()
+    # cap = cap_tr.nlp()
     quotes = q.clean_data(cap)
     trainer = GetQuote(quotes)
     quotess = trainer.run()

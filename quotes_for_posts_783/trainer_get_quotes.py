@@ -24,7 +24,7 @@ class GetData():
         path = os.getcwd()
         #path = '/home/morad/code/LAnnamaria/quotes_for_posts_783'
         quotes =  pd.read_csv(f"{path}/raw_data/cleaned_quotes.csv")
-        #quotes = quotes.head(10000)
+        quotes = quotes.head(10000)
         print(quotes.head())
         quotes.iloc[-1] = [image_caption, 'image','image',self.remove_punctuations(image_caption),'1']
         return quotes
@@ -55,7 +55,7 @@ class GetQuote():
         self.own_tags = None
 
     def run(self):
-        trained_topics = self.top5.transform(self.quotes.list_tags)
+        trained_topics = self.top5.transform(self.quotes.list_tags.values.astype('U'))
         for index,row in self.quotes.iterrows():
             self.quotes['topic'] = self.quotes.quote.copy()
         for index,row in self.quotes.iterrows():
