@@ -28,7 +28,7 @@ def clean_data(test=False):
     for index,row in quotes.iterrows():
         quotes.at[index, 'list_tags'] = str(set(row['list_tags']))
     quotes['list_tags'] = quotes['list_tags'].apply(remove_punctuations)
-    quotes.to_csv('raw_data/cleaned_quotes.csv')
+    quotes.to_csv('raw_data/cleaned_quotes.csv', index=False)
     print('Saved the cleaned dataframe as cleaned_quotes')
     return quotes
 
