@@ -37,20 +37,21 @@ def top5():
     cap = 'two dogs are playing on a field'
     quotes = q.clean_data(cap)
     trainer = GetQuote(quotes)
-    quotess = trainer.run()
+    trainer.run()
     top5 = trainer.top5_fuc()
     #most_suitable_quote = trainer.most_suitable(quotess,tags)
     return {'top5' : top5 }
 
 @app.get("/final")
 def final(added_topics):
-    params = { 'added_topics' : [str(added_topics)]}
+    added_topics = str(added_topics)
+    #params = { 'added_topics' : [str(added_topics)]}
     q = GetData()
     # cap_tr = ImageCaption()
     # cap = cap_tr.nlp()
     quotes = q.clean_data(added_topics)
     trainer = GetQuote(quotes)
-    quotess = trainer.run()
+    trainer.run()
     most_suitable_quote = trainer.most_suitable(added_topics)
     return {'most_suitable' : most_suitable_quote }
 
