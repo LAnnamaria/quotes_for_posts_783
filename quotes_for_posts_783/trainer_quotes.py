@@ -81,7 +81,7 @@ class QuotesTrainer():
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         #print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
-        trained_topics = trained.transform(self.quotes.list_tags)
+        trained_topics = trained.transform(self.quotes.list_tags.values.astype('U'))
         for index,row in self.quotes.iterrows():
             self.quotes['topic'] = self.quotes.quote.copy()
         for index,row in self.quotes.iterrows():
