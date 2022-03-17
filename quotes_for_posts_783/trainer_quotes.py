@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 import joblib
 from google.cloud import storage
-
+import os
 
 BUCKET_NAME = 'quotes_for_posts_783'
 
@@ -77,7 +77,7 @@ class QuotesTrainer():
         self.vectorizer = TfidfVectorizer(max_df=0.75, stop_words="english",ngram_range=(1,2),norm='l1')
         topic_pipeline = Pipeline([('tfidf', self.vectorizer),('lda', lda_model)])
         trained = topic_pipeline
-        trained_topics = trained.fit(self.quotes.list_tags)
+        trained_topics = trained.fit(self.quotes.list_tags.values.astype('U'))
         joblib.dump(trained_topics,'top5.joblib')
         upload_model_to_gcp_1()
         #print(f"uploaded top5.joblib to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
@@ -133,13 +133,14 @@ class QuotesTrainer():
 
 if __name__ == "__main__":
     image_caption = 'It will be added from Mohana´s'
-    quotes = qd.clean_data()
+    path = os.getcwd()
+    quotes =  pd.read_csv(f"{path}/raw_data/cleaned_quotes.csv").head(1000)
     quotes = u.image_cap_to_quotes(quotes,image_caption)
     trainer = QuotesTrainer(quotes)
     quotess = trainer.run()
-    trainer.top5(quotess)
+    print(trainer.top5(quotess))
     #trainer.most_suitable(image_caption)
-    trainer.most_suitable(quotess,image_caption)
+    print(trainer.most_suitable(quotess,image_caption))
 
    # satisfied = input('Are you satisfied with any of these quotes? Y/N')
     #if satisfied == 'Y':
