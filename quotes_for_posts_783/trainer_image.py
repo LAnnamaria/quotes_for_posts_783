@@ -1,7 +1,7 @@
 import nltk
-nltk.download('all')
-nltk.download('wordnet')
-nltk.download('stopwords')
+#nltk.download('all')
+#nltk.download('wordnet')
+#nltk.download('stopwords')
 
 import pandas as pd
 import re
@@ -22,6 +22,7 @@ from keras.layers import Input , Dense , LSTM , Embedding , Dropout
 from keras.layers.merge import add
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
+from google.cloud import storage
 ### GCP configuration - - - - - - - - - - - - - - - - - - -
 
 BUCKET_NAME = 'quotes_for_posts_783'
@@ -46,24 +47,17 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
 
-def extract_features(directory, df_im_0):
+def extract_features(df_im_0):
     
     model = VGG16()
-    
     #remove last layer
     model.layers.pop()
-    
     model = Model(inputs = model.inputs , outputs = model.layers[-1].output)
-    
     print(model.summary())
-    
     features = dict()
-
-    images = list(df_im_0)
-
+    images = df_im_0['image_name']
     for i in images:
-
-        imagePath =f'{directory} /{i}.jpg'
+        imagePath =f'{BUCKET_TRAIN_DATA_PATH}/{i}'
         download_blob(BUCKET_NAME, imagePath, 'temp.jpg')
         image = load_img('temp.jpg' , target_size=(224 , 224))
         image = img_to_array(image)
@@ -79,8 +73,7 @@ def extract_features(directory, df_im_0):
 
 def image_set(df_im_0):
     df_im_0['image_name'] = df_im_0['image_name'].astype('str') + '.jpg'
-    directory = 'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}'
-    features = extract_features(directory, df_im_0)
+    features = extract_features(df_im_0)
     print('extracted features :',len(features))
     dump(features , open('features.pkl' , 'wb'))
 
@@ -103,22 +96,16 @@ def clean_text(desc):
     lemma = WordNetLemmatizer()
     # clean punctuation
     desc = re.sub(r'[^\w\s]' ,'', desc)
-    
     # tokenize the words
     desc = desc.split()
-    
     # convert to lower case
     desc = [token.lower() for token in desc]
-    
     # lemmatization
     desc = [lemma.lemmatize(token) for token in desc]
-    
     # remove numerical values
     desc = [token for token in desc if token.isalpha()]
-    
     # join whole token
     desc = ' '.join(desc)
-    
     return desc
 
 # convert loaded descriptions into vocablury
@@ -196,13 +183,11 @@ def max_length(descriptions):
 # create sequences of images,input sequences and output sequences
 def create_sequences(tokenizer , max_length , desc_list , photo):
     X1 , X2 , y = list() , list() , list()
-    
     for desc in desc_list:
         # convert words to number value
         seq = tokenizer.texts_to_sequences([desc])[0]
-        
         for i in range(1, len(seq)):
-            
+ 
             in_seq , output_seq = seq[:i] , seq[i]
             in_seq = pad_sequences([in_seq] , maxlen = max_length)[0]
             output_seq = to_categorical([output_seq] , num_classes = vocab_size)[0]
@@ -216,7 +201,7 @@ def create_sequences(tokenizer , max_length , desc_list , photo):
 def define_Model(vocab_size , max_length):
     
     # feature extractor model
-    inputs1 = Input(shape=(4096 , ))
+    inputs1 = Input(shape=(1000, ))
     fe1 = Dropout(0.5)(inputs1)
     fe2 = Dense(512 , activation='relu')(fe1)
     fe3 = Dense(256 , activation = 'relu')(fe2)
@@ -289,6 +274,7 @@ def generate_desc(model , tokenizer , photo , max_length):
 
 if __name__ == '__main__':
     df_im_0 = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
+    df_im_0 = df_im_0.head(120)
     image_set(df_im_0)
     df_im_0['comments'] = df_im_0['comments'].apply(lambda x : clean_text(str(x)))
     desc_map = load_decriptions(df_im_0)
@@ -296,6 +282,7 @@ if __name__ == '__main__':
     save_descriptions(desc_map , 'descriptions.txt')
     train = set(df_im_0['image_name'])
     print('len of train image',len(train))
+    train_descriptions = load_clean_descriptions('descriptions.txt' , train)
     train = pd.DataFrame(train)
     train2 = train[0].apply(lambda x : x.replace('.jpg' , ''))
     train_features = load_photo_features('features.pkl' , train2)
@@ -303,6 +290,7 @@ if __name__ == '__main__':
     tokenizer = create_tokenizer(train_descriptions)
     vocab_size = len(tokenizer.word_index) + 1
     print('vocab size' , vocab_size)
+    max_len = max_length(train_descriptions)
     model = define_Model(vocab_size , max_len)
     epochs = 5
     steps = len(train_descriptions)
@@ -310,6 +298,6 @@ if __name__ == '__main__':
     for i in range(epochs):
         generator = data_generator(train_descriptions , train_features , tokenizer , max_len)
         
-        model.fit_generator(generator , epochs = 1 , steps_per_epoch = steps , verbose = 1)
+        model.fit(generator , epochs = 1 , steps_per_epoch = steps , verbose = 1)
         
         model.save('model_'+ str(i+1) + '.h5')
