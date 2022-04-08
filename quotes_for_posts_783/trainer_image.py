@@ -1,7 +1,7 @@
 import nltk
-#nltk.download('all')
-#nltk.download('wordnet')
-#nltk.download('stopwords')
+nltk.download('all')
+nltk.download('wordnet')
+nltk.download('stopwords')
 
 import pandas as pd
 import re
@@ -22,6 +22,7 @@ from keras.layers import Input , Dense , LSTM , Embedding , Dropout
 from keras.layers.merge import add
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
+import joblib
 from google.cloud import storage
 ### GCP configuration - - - - - - - - - - - - - - - - - - -
 
@@ -31,11 +32,11 @@ BUCKET_NAME = 'quotes_for_posts_783'
 
 BUCKET_TRAIN_DATA_PATH = 'raw_data/image_dataset/image_dataset'
 BUCKET_TRAIN_DATA_PATH_1= 'raw_data/image_dataset/df_images_0.csv'
-
+STORAGE_LOCATION_1 = 'quotes_for_posts_783/trainer_image_set_0.h5'
 # model folder name (will contain the folders for all trained model versions)
 MODEL_NAME = 'image_description'
 
-# model version folder name (where the trained model.joblib file will be stored)
+# model version folder name (where the trained model.h5 file will be stored)
 MODEL_VERSION = 'v1'
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,7 +69,6 @@ def extract_features(df_im_0):
         image_id = i.split(".")[0]
         # store features
         features[image_id] = feature
-        print(i)
     return features
 
 def image_set(df_im_0):
@@ -199,7 +199,7 @@ def create_sequences(tokenizer , max_length , desc_list , photo):
     return np.array(X1) , np.array(X2) , np.array(y)
 
 def define_Model(vocab_size , max_length):
-    
+
     # feature extractor model
     inputs1 = Input(shape=(1000, ))
     fe1 = Dropout(0.5)(inputs1)
@@ -213,21 +213,16 @@ def define_Model(vocab_size , max_length):
     se3 = LSTM(512 , return_sequences=True)(se2)
     se4 = Dropout(0.5)(se3)
     se5 = LSTM(256)(se4)
-    
-    
     #decoder Model
     decoder1 = add([fe3 , se5])
     decoder2 = Dense(256 , activation='relu')(decoder1)
     decoder3 = Dense(512 , activation='relu')(decoder2)
     outputs = Dense(vocab_size , activation='softmax')(decoder3)
-    
     # combine both image and text
     model = Model([inputs1 , inputs2] , outputs)
     model.compile(loss='categorical_crossentropy' , optimizer = 'adam')
-    
     # summary
     print(model.summary())
-    
     return model
 
 def data_generator(descriptions , photos , tokenizer , max_length):
@@ -272,32 +267,34 @@ def generate_desc(model , tokenizer , photo , max_length):
             
     return input_text
 
+def upload_model_to_gcp_image_1():
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(STORAGE_LOCATION_1)
+    blob.upload_from_filename('trainer_image_set_0.h5')
+    print(f"uploaded trainer_image_set_0.h5 to gcp cloud storage under \n => {STORAGE_LOCATION_1}")
+
 if __name__ == '__main__':
     df_im_0 = pd.read_csv(f'gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH_1}')
-    df_im_0 = df_im_0.head(120)
+    #df_im_0 = df_im_0.head(120)
     image_set(df_im_0)
     df_im_0['comments'] = df_im_0['comments'].apply(lambda x : clean_text(str(x)))
     desc_map = load_decriptions(df_im_0)
     vocabulary = to_vocabluary(desc_map)
     save_descriptions(desc_map , 'descriptions.txt')
     train = set(df_im_0['image_name'])
-    print('len of train image',len(train))
     train_descriptions = load_clean_descriptions('descriptions.txt' , train)
     train = pd.DataFrame(train)
     train2 = train[0].apply(lambda x : x.replace('.jpg' , ''))
     train_features = load_photo_features('features.pkl' , train2)
-    print('photos train :',len(train_features))
     tokenizer = create_tokenizer(train_descriptions)
     vocab_size = len(tokenizer.word_index) + 1
-    print('vocab size' , vocab_size)
     max_len = max_length(train_descriptions)
     model = define_Model(vocab_size , max_len)
     epochs = 5
     steps = len(train_descriptions)
-
     for i in range(epochs):
         generator = data_generator(train_descriptions , train_features , tokenizer , max_len)
-        
-        model.fit(generator , epochs = 1 , steps_per_epoch = steps , verbose = 1)
-        
-        model.save('model_'+ str(i+1) + '.h5')
+        image_set_0 = model.fit(generator , epochs = 1 , steps_per_epoch = steps , verbose = 1)
+        model.save('trainer_image_set_0.h5')   
+    upload_model_to_gcp_image_1()
